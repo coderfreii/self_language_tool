@@ -1,0 +1,44 @@
+{
+	"name": "volar-service-markdown",
+	"version": "0.0.51",
+	"description": "Integrate vscode-markdown-languageservice into Volar",
+	"homepage": "https://github.com/volarjs/services/tree/master/packages/markdown",
+	"bugs": "https://github.com/volarjs/services/issues",
+	"sideEffects": false,
+	"keywords": [
+		"volar-service"
+	],
+	"license": "MIT",
+	"files": [
+		"**/*.js",
+		"**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/volarjs/services.git",
+		"directory": "packages/markdown"
+	},
+	"author": {
+		"name": "Remco Haszing",
+		"email": "remcohaszing@gmail.com",
+		"url": "https://github.com/remcohaszing"
+	},
+	"dependencies": {
+		"markdown-it": "^13.0.2",
+		"vscode-jsonrpc": "^8.2.0",
+		"vscode-markdown-languageservice": "~0.5.0-alpha.1",
+		"vscode-uri": "^3.0.8"
+	},
+	"devDependencies": {
+		"@types/markdown-it": "^13.0.4",
+		"vscode-languageserver-textdocument": "^1.0.11"
+	},
+	"peerDependencies": {
+		"@volar/language-service": "~2.3.0"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
+	}
+}

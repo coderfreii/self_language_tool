@@ -1,0 +1,7 @@
+node_modules
+*.tsbuildinfo
+*.d.ts
+*.js
+*.map
+*.tgz
+!packages/emmet/lib/typings/**/*

@@ -1,0 +1,35 @@
+{
+	"private": true,
+	"packageManager": "pnpm@9.1.2",
+	"scripts": {
+		"build": " tsc --build",
+		"clean": "tsc -b --clean",
+		"watch": "npm run build && (npm run watch:base & npm run watch:vue)",
+		"watch:base": "tsc -b -w",
+		"watch:vue": "cd ./extensions/vscode && npm run watch",
+		"prerelease": "npm run build && npm run test",
+		"version:test": "lerna version --exact --force-publish --yes --sync-workspace-lock --no-push --no-git-tag-version",
+		"release": "npm run release:base && npm run release:vue",
+		"release:base": "lerna publish --exact --force-publish --yes --sync-workspace-lock",
+		"release:vue": "cd ./extensions/vscode && npm run release",
+		"release:next": "npm run release:next-base && npm run release:next-vue",
+		"release:next-base": "npm run release:base -- --dist-tag next",
+		"release:next-vue": "cd ./extensions/vscode && npm run release:next",
+		"test": "vitest run",
+		"lint": "tsslint --projects {packages/*/tsconfig.json,extensions/*/tsconfig.json}",
+		"lint:fix": "npm run lint -- --fix",
+		"chrome": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=./extensions/vscode ../volar-starter",
+		"clean:node_modules:window": "powershell -Command \"Get-ChildItem -Path . -Filter 'node_modules' -Recurse -Directory | ForEach-Object { Remove-Item $_.FullName -Recurse -Force }\""
+	},
+	"devDependencies": {
+		"@lerna-lite/cli": "latest",
+		"@lerna-lite/publish": "latest",
+		"@tsslint/cli": "latest",
+		"@tsslint/config": "latest",
+		"@volar/language-service": "~2.3.0-alpha.15",
+		"@volar/tsslint-config": "latest",
+		"typescript": "latest",
+		"vite": "latest",
+		"vitest": "latest"
+	}
+}

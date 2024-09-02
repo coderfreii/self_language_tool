@@ -1,0 +1,22 @@
+{
+	"name": "@vue/language-plugin-pug",
+	"version": "2.0.21",
+	"license": "MIT",
+	"files": [
+		"**/*.js",
+		"**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/vuejs/language-tools.git",
+		"directory": "packages/language-plugin-pug"
+	},
+	"devDependencies": {
+		"@types/node": "latest",
+		"@vue/language-core": "2.0.21"
+	},
+	"dependencies": {
+		"@volar/source-map": "~2.3.0-alpha.15",
+		"volar-service-pug": "0.0.50"
+	}
+}

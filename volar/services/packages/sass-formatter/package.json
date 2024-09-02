@@ -1,0 +1,37 @@
+{
+	"name": "volar-service-sass-formatter",
+	"version": "0.0.51",
+	"description": "Integrate sass-formatter into Volar",
+	"homepage": "https://github.com/volarjs/services/tree/master/packages/sass-formatter",
+	"bugs": "https://github.com/volarjs/services/issues",
+	"sideEffects": false,
+	"keywords": [
+		"volar-service"
+	],
+	"license": "MIT",
+	"files": [
+		"**/*.js",
+		"**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/volarjs/services.git",
+		"directory": "packages/sass-formatter"
+	},
+	"author": {
+		"name": "Johnson Chu",
+		"email": "johnsoncodehk@gmail.com",
+		"url": "https://github.com/johnsoncodehk"
+	},
+	"dependencies": {
+		"sass-formatter": "^0.7.8"
+	},
+	"peerDependencies": {
+		"@volar/language-service": "~2.3.0"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
+	}
+}

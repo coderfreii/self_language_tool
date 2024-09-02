@@ -1,0 +1,37 @@
+{
+	"name": "volar-service-prettyhtml",
+	"version": "0.0.51",
+	"description": "Integrate prettyhtml into Volar",
+	"homepage": "https://github.com/volarjs/services/tree/master/packages/prettyhtml",
+	"bugs": "https://github.com/volarjs/services/issues",
+	"sideEffects": false,
+	"keywords": [
+		"volar-service"
+	],
+	"license": "MIT",
+	"files": [
+		"**/*.js",
+		"**/*.d.ts"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/volarjs/services.git",
+		"directory": "packages/prettyhtml"
+	},
+	"author": {
+		"name": "Johnson Chu",
+		"email": "johnsoncodehk@gmail.com",
+		"url": "https://github.com/johnsoncodehk"
+	},
+	"dependencies": {
+		"@starptech/prettyhtml": "^0.10.0"
+	},
+	"peerDependencies": {
+		"@volar/language-service": "~2.3.0"
+	},
+	"peerDependenciesMeta": {
+		"@volar/language-service": {
+			"optional": true
+		}
+	}
+}

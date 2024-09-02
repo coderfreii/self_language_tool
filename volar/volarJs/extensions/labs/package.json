@@ -1,0 +1,78 @@
+{
+	"private": true,
+	"name": "volarjs-labs",
+	"version": "2.3.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/volarjs/volar.js.git",
+		"directory": "extensions/labs"
+	},
+	"sponsor": {
+		"url": "https://github.com/sponsors/johnsoncodehk"
+	},
+	"icon": "images/icon.png",
+	"displayName": "Volar Labs",
+	"description": "Volar Labs",
+	"author": "johnsoncodehk",
+	"publisher": "johnsoncodehk",
+	"engines": {
+		"vscode": "^1.82.0"
+	},
+	"activationEvents": [
+		"onView:volar-servers",
+		"onView:volar-virtual-files",
+		"onView:volar-service-plugins"
+	],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "volarjs-labs",
+					"title": "Volar Labs",
+					"icon": "images/btn.svg"
+				}
+			]
+		},
+		"views": {
+			"volarjs-labs": [
+				{
+					"id": "volar-servers",
+					"name": "Extensions",
+					"contextualTitle": "Volar.js"
+				},
+				{
+					"id": "volar-virtual-files",
+					"name": "Virtual Files",
+					"contextualTitle": "Volar.js"
+				},
+				{
+					"id": "volar-service-plugins",
+					"name": "Service Plugins",
+					"contextualTitle": "Volar.js"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"prebuild": "tsc",
+		"build": "node scripts/build",
+		"watch": "tsc -w & npm run build -- --watch",
+		"prepack": "npm run build -- --minify",
+		"pack": "npm run prepack && vsce package",
+		"release": "npm run prepack && vsce publish",
+		"release:next": "npm run prepack && vsce publish --pre-release",
+		"size": "npm run prepack -- --metafile && esbuild-visualizer --metadata ./meta.json && open ./stats.html"
+	},
+	"devDependencies": {
+		"@types/node": "latest",
+		"@types/vscode": "^1.82.0",
+		"@volar/language-server": "2.3.0",
+		"@volar/source-map": "2.3.0",
+		"@volar/vscode": "2.3.0",
+		"esbuild": "latest",
+		"esbuild-plugin-copy": "latest",
+		"esbuild-visualizer": "latest",
+		"vsce": "latest"
+	}
+}

@@ -1,0 +1,8 @@
+packages:
+  - 'extensions/*'
+  - 'packages/*'
+  - 'test-workspace'
+  - 'volar/**'
+  - 'vscode_common'
+  - 'other-third-part/**'
+  - '!plugins/*'

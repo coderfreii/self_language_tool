@@ -1,0 +1,12 @@
+[submodule "other-third-part/computeds"]
+	path = other-third-part/computeds
+	url = https://github.com/coderfreii/computeds.git
+[submodule "volar/volarJs"]
+	path = volar/volarJs
+	url = https://github.com/coderfreii/volar.js.git
+[submodule "volar/services"]
+	path = volar/services
+	url = https://github.com/coderfreii/services.git
+[submodule "plugins/vue-macros"]
+	path = plugins/vue-macros
+	url = https://github.com/coderfreii/vue-macros.git

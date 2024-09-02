@@ -1,0 +1,19 @@
+{
+	"name": "vscode_common",
+	"version": "1.0.0",
+	"description": "",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"files": [
+		"**/*.js",
+		"**/*.d.ts"
+	],
+	"keywords": [ ],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/node": "^20.13.0",
+		"@types/vscode": "^1.82.0"
+	}
+}

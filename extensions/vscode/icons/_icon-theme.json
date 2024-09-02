@@ -1,0 +1,14 @@
+{
+	"iconDefinitions": {
+	  "file_type_vtx": {
+		"iconPath": "./1327960-ff5722.svg"
+	  }
+	},
+	// "fileExtensions": {
+	//   "vtx": "file_type_vtx"
+	// },
+	"languageIds": {
+	  "typescriptreact-vtx": "file_type_vtx"
+	}
+  }
+  
