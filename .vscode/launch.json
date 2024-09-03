@@ -7,9 +7,13 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
+			"env": {
+				"TSS_DEBUG": "8455"
+			},
 			"args": [
-				// "--disable-extensions",
+				"--disable-extensions",
 				"--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode",
+				"--user-data-dir ~/.vscode-debug/"
 				// "--folder-uri=D:/learnCode/frondend/ts/base-project"
 			],
 			"outFiles": [
@@ -22,7 +26,7 @@
 		},
 		{
 			"name": "Launch Web Client",
-			"type": "pwa-extensionHost",
+			"type": "extensionHost",
 			"debugWebWorkerHost": true,
 			"request": "launch",
 			"args": [
@@ -47,6 +51,19 @@
 			"outFiles": [
 				"${workspaceRoot}/**/*.js"
 			]
+		},
+		{
+
+			"name": "Attach to TS Server",
+			"type": "node",
+			"request": "attach",
+			"port": 8455,
+			"sourceMaps": true,
+			"restart": true,
+			"outFiles": [
+				"${workspaceRoot}/**/*.js"
+			],
+			"outputCapture": "std",
 		}
 	],
 }

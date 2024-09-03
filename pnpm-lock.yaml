@@ -37,6 +37,10 @@ importers:
         version: 1.6.0(@types/node@20.14.2)(@vitest/ui@1.6.0)(less@4.2.0)(terser@5.31.1)
 
   extensions/vscode:
+    dependencies:
+      '@vue/typescript-plugin':
+        specifier: 2.0.21
+        version: link:../../packages/typescript-plugin
     devDependencies:
       '@types/semver':
         specifier: ^7.5.3
@@ -53,9 +57,6 @@ importers:
       '@vue/language-server':
         specifier: 2.0.21
         version: link:../../packages/language-server
-      '@vue/typescript-plugin':
-        specifier: 2.0.21
-        version: link:../../packages/typescript-plugin
       esbuild:
         specifier: latest
         version: 0.21.3
@@ -265,7 +266,7 @@ importers:
         version: 1.0.2
       '@volar/kit':
         specifier: ~2.3.0-alpha.15
-        version: link:../../volar/volarJs/packages/kit
+        version: 2.3.4(typescript@5.4.5)
       vscode-languageserver-protocol:
         specifier: ^3.17.5
         version: 3.17.5
@@ -2052,19 +2053,36 @@ packages:
   '@vitest/utils@1.6.0':
     resolution: {integrity: sha512-21cPiuGMoMZwiOHa2i4LXkMkMkCGzA+MVFV70jRwHo95dL4x/ts5GZhML1QWuy7yfp3WzK3lRvZi3JnXTYqrBw==}
 
+  '@volar/kit@2.3.4':
+    resolution: {integrity: sha512-MVDrvAHiYMCrt9kEB0Z8ui/CW88fMFj5ZBYslmIsldsalKoJsaSL6ZeKcPmJFn5R5FU6tAlRh3UqcZFbrd9G5Q==}
+    peerDependencies:
+      typescript: '*'
+
   '@volar/language-core@2.3.0':
     resolution: {integrity: sha512-pvhL24WUh3VDnv7Yw5N1sjhPtdx7q9g+Wl3tggmnkMcyK8GcCNElF2zHiKznryn0DiUGk+eez/p2qQhz+puuHw==}
+
+  '@volar/language-core@2.3.4':
+    resolution: {integrity: sha512-wXBhY11qG6pCDAqDnbBRFIDSIwbqkWI7no+lj5+L7IlA7HRIjRP7YQLGzT0LF4lS6eHkMSsclXqy9DwYJasZTQ==}
 
   '@volar/language-service@2.3.0':
     resolution: {integrity: sha512-U0ggeoHh4afYflGD2vjw8QPwnnDg5V4QDkZ5meL+B2YwrXEF9bVAHTjYaR8AxJ2qb3mwOwXLtZ9psJJSjkdctw==}
 
+  '@volar/language-service@2.3.4':
+    resolution: {integrity: sha512-mtzvYb33l17VVRwmX7C39EjVHBU9LbBJeo1rLXFKoXOzbZCanm0XtPZEENsm05VUvse929y4ParujW7k4G5H0w==}
+
   '@volar/source-map@2.3.0':
     resolution: {integrity: sha512-G/228aZjAOGhDjhlyZ++nDbKrS9uk+5DMaEstjvzglaAw7nqtDyhnQAsYzUg6BMP9BtwZ59RIw5HGePrutn00Q==}
+
+  '@volar/source-map@2.3.4':
+    resolution: {integrity: sha512-C+t63nwcblqLIVTYXaVi/+gC8NukDaDIQI72J3R7aXGvtgaVB16c+J8Iz7/VfOy7kjYv7lf5GhBny6ACw9fTGQ==}
 
   '@volar/tsslint-config@0.0.0-20240602':
     resolution: {integrity: sha512-dSiDDiFExwKKD+N0cl9hLHL76+X+/a4qltbdb6ayEwu7G5H4aw5Qlm99beDyvO9bpFZFSPdkR5XXqyRYZPKLtA==}
     peerDependencies:
       '@tsslint/config': latest
+
+  '@volar/typescript@2.3.4':
+    resolution: {integrity: sha512-acCvt7dZECyKcvO5geNybmrqOsu9u8n5XP1rfiYsOLYGPxvHRav9BVmEdRyZ3vvY6mNyQ1wLL5Hday4IShe17w==}
 
   '@vscode/emmet-helper@2.9.3':
     resolution: {integrity: sha512-rB39LHWWPQYYlYfpv9qCoZOVioPCftKXXqrsyqN1mTWZM6dTnONT63Db+03vgrBbHzJN45IrgS/AGxw9iiqfEw==}
@@ -6617,9 +6635,22 @@ snapshots:
       loupe: 2.3.7
       pretty-format: 29.7.0
 
+  '@volar/kit@2.3.4(typescript@5.4.5)':
+    dependencies:
+      '@volar/language-service': 2.3.4
+      '@volar/typescript': 2.3.4
+      typesafe-path: 0.2.2
+      typescript: 5.4.5
+      vscode-languageserver-textdocument: 1.0.11
+      vscode-uri: 3.0.8
+
   '@volar/language-core@2.3.0':
     dependencies:
       '@volar/source-map': 2.3.0
+
+  '@volar/language-core@2.3.4':
+    dependencies:
+      '@volar/source-map': 2.3.4
 
   '@volar/language-service@2.3.0':
     dependencies:
@@ -6628,13 +6659,28 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.11
       vscode-uri: 3.0.8
 
+  '@volar/language-service@2.3.4':
+    dependencies:
+      '@volar/language-core': 2.3.4
+      vscode-languageserver-protocol: 3.17.5
+      vscode-languageserver-textdocument: 1.0.11
+      vscode-uri: 3.0.8
+
   '@volar/source-map@2.3.0':
     dependencies:
       muggle-string: 0.4.1
 
+  '@volar/source-map@2.3.4': {}
+
   '@volar/tsslint-config@0.0.0-20240602(@tsslint/config@1.0.12)':
     dependencies:
       '@tsslint/config': 1.0.12
+
+  '@volar/typescript@2.3.4':
+    dependencies:
+      '@volar/language-core': 2.3.4
+      path-browserify: 1.0.1
+      vscode-uri: 3.0.8
 
   '@vscode/emmet-helper@2.9.3':
     dependencies:

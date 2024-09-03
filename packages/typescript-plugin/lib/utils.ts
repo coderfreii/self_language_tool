@@ -5,7 +5,7 @@ import * as ts from 'typescript';
 import * as fs from 'fs';
 import type { Request } from './server';
 
-export {  TypeScriptProjectLanguageServiceHost } from '@volar/typescript';
+export { TypeScriptProjectLanguageServiceHost } from '@volar/typescript';
 
 export interface NamedPipeServer {
 	path: string;
@@ -58,7 +58,7 @@ export function connect(path: string) {
 export async function searchNamedPipeServerForFile(fileName: string) {
 	const servers = readPipeTable();
 	const configuredServers = servers
-		.filter(item => item.serverKind ===  ts.server.ProjectKind.Configured);
+		.filter(item => item.serverKind === ts.server.ProjectKind.Configured);
 	const inferredServers = servers
 		.filter(item => item.serverKind === ts.server.ProjectKind.Inferred)
 		.sort((a, b) => b.currentDirectory.length - a.currentDirectory.length);

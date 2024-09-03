@@ -28,6 +28,17 @@ export interface Request {
 
 let started = false;
 
+
+function resolvePipeFileName() {
+	const pipeFile = process.platform === 'win32'
+		? `\\\\.\\pipe\\vue-tsp-${process.pid}`
+		: `/tmp/vue-tsp-${process.pid}`;
+
+	return pipeFile;
+}
+
+
+
 export function startNamedPipeServer(
 	ts: typeof import('typescript'),
 	serverKind: ts.server.ProjectKind,
@@ -38,11 +49,14 @@ export function startNamedPipeServer(
 	}
 	started = true;
 
-	const pipeFile = process.platform === 'win32'
-		? `\\\\.\\pipe\\vue-tsp-${process.pid}`
-		: `/tmp/vue-tsp-${process.pid}`;
+	const pipeFile = resolvePipeFileName()
+
 	const server = net.createServer(connection => {
-		connection.on('data', data => {
+		connection.on('data', onData);
+		connection.on('error', onError);
+
+
+		function onData(data:Buffer){
 			const text = data.toString();
 			const request: Request = JSON.parse(text);
 			const fileName = request.args[0];
@@ -113,8 +127,12 @@ export function startNamedPipeServer(
 				console.warn('[Vue Named Pipe Server] No project found for:', fileName);
 			}
 			connection.end();
-		});
-		connection.on('error', err => console.error('[Vue Named Pipe Server]', err.message));
+		}
+
+		function onError(err:Error){
+			console.error('[Vue Named Pipe Server]', err.message)
+		}
+		
 	});
 
 	cleanupPipeTable();

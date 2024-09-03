@@ -148,6 +148,7 @@ export function createServerBase(
 		//
 		lazyHolder.pullModelDiagnostics = options?.pullModelDiagnostics ?? false;
 
+		lazyHolder.diagnostic = diagnosticsSetup.setup(lazyHolder, configurationWatcher, documents);
 
 		setupInitializeResult();
 
@@ -166,7 +167,6 @@ export function createServerBase(
 		configurationWatcher.registerConfigurationWatcher();
 		updateHttpSettings();
 		configurationWatcher.onDidChangeConfiguration(updateHttpSettings);
-		lazyHolder.diagnostic = diagnosticsSetup.setup(lazyHolder, configurationWatcher, documents);
 	}
 
 	async function shutdown() {

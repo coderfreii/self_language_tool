@@ -1,4 +1,3 @@
-// import { forEachEmbeddedCode, type LanguagePlugin } from '@volar/language-core';
 import type * as ts from 'typescript';
 import { getBasePlugins } from './plugins';
 import type { VueCompilerOptions, VueLanguagePlugin } from './types';
@@ -190,4 +189,12 @@ export function createVueLanguagePlugin<T>(
 			vueCompilerOptions.plugins,
 		);
 	}
+}
+
+
+export function resolveVueLanguagePluginExtensions(languagePlugins: LanguagePlugin<string>[]){
+	const extensions = languagePlugins
+	.map(plugin => plugin.typescript?.extraFileExtensions.map(ext => '.' + ext.extension) ?? [])
+	.flat();
+	return extensions
 }

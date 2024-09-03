@@ -22,25 +22,18 @@ export type GetLanguagePlugin<T> = (params: {
 }) => ProviderResult<LanguagePlugin<URI>[]>;
 
 export function createHybridModeProjectFacade(
-	s: LanguageServer,
+	_server: LanguageServer,
 	sys: ts.System,
 	getLanguagePlugins: GetLanguagePlugin<URI>,
 ): ProjectFacade {
-	let initialized = false;
 	let simpleLs: Promise<LanguageService> | undefined;
 	let serviceEnv: LanguageServiceEnvironment | undefined;
-	let server: LanguageServer = s;
-
-	
+	let server: LanguageServer = _server;
 	const tsconfigProjects = createUriMap<Promise<LanguageService>>(sys.useCaseSensitiveFileNames);
+	initialize(server);
 
 	return {
 		async reolveLanguageServiceByUri(uri) {
-			if (!initialized) {
-				initialized = true;
-				initialize(server);
-			}
-
 			const fileName = asFileName(uri);
 			const projectInfo = (await searchNamedPipeServerForFile(fileName))?.projectInfo;
 			if (projectInfo?.kind === ts.server.ProjectKind.Configured) {

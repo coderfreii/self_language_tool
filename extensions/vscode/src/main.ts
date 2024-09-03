@@ -9,7 +9,7 @@ import { forCompatible } from './common/compatible';
 
 import * as volarLsp from '@volar/vscode';
 import type { VueInitializationOptions } from '@vue/language-server/lib/types';
-// import { patch } from './patch';
+import { patch } from './patch';
 
 
 export type CreateLanguageClient = (
@@ -133,4 +133,4 @@ function updateProviders(client: lsp.LanguageClient) {
 }
 
 
-// patch.patchTypescriptLanguageFeaturesExtention();
+patch.patchTypescriptLanguageFeaturesExtention();

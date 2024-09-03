@@ -1,9 +1,9 @@
-// import { FileMap, LanguagePlugin, createLanguage } from '@volar/language-core';
 import type * as ts from 'typescript';
 import { resolveFileLanguageId } from '../common';
 import { decorateLanguageService } from '../node/decorateLanguageService';
 import { decorateLanguageServiceHost, searchExternalFiles } from '../node/decorateLanguageServiceHost';
 import { createLanguage } from '@volar/language-core';
+import * as vue from '@vue/language-core';
 import type { Language, LanguagePlugin } from '@volar/language-core/lib/types';
 import { FileMap } from '@volar/language-core/lib/utils';
 
@@ -17,7 +17,7 @@ export function createLanguageServicePlugin(
 		ts: typeof import('typescript'),
 		info: ts.server.PluginCreateInfo
 	) => {
-		languagePlugins: LanguagePlugin<string>[],
+		vueLanguagePlugins: LanguagePlugin<string>[],
 		setup?: (language: Language<string>) => void;
 	}
 ): ts.server.PluginModuleFactory {
@@ -25,6 +25,8 @@ export function createLanguageServicePlugin(
 		const { typescript: ts } = modules;
 		const pluginModule: ts.server.PluginModule = {
 			create(info) {
+				console.log("I'm getting set up now! Check");
+
 				if (
 					!decoratedLanguageServices.has(info.languageService)
 					&& !decoratedLanguageServiceHosts.has(info.languageServiceHost)
@@ -32,17 +34,24 @@ export function createLanguageServicePlugin(
 					decoratedLanguageServices.add(info.languageService);
 					decoratedLanguageServiceHosts.add(info.languageServiceHost);
 
-					const { languagePlugins, setup } = create(ts, info);
-					const extensions = languagePlugins
-						.map(plugin => plugin.typescript?.extraFileExtensions.map(ext => '.' + ext.extension) ?? [])
-						.flat();
+
+					const { vueLanguagePlugins, setup } = create(ts, info);
+
+					const extensions = vue.resolveVueLanguagePluginExtensions(vueLanguagePlugins)	
+
 					projectExternalFileExtensions.set(info.project, extensions);
+
 					const getScriptSnapshot = info.languageServiceHost.getScriptSnapshot.bind(info.languageServiceHost);
 					const getScriptVersion = info.languageServiceHost.getScriptVersion.bind(info.languageServiceHost);
+
+
 					const syncedScriptVersions = new FileMap<string>(ts.sys.useCaseSensitiveFileNames);
+
+
+
 					const language = createLanguage<string>(
 						[
-							...languagePlugins,
+							...vueLanguagePlugins,
 							{ getLanguageId: resolveFileLanguageId },
 						],
 						new FileMap(ts.sys.useCaseSensitiveFileNames),

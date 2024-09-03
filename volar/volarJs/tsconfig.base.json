@@ -15,7 +15,8 @@
 		"esModuleInterop": false,
 		"forceConsistentCasingInFileNames": true,
 		"ignoreDeprecations": "5.0",
-		"verbatimModuleSyntax":false
+		"verbatimModuleSyntax":false,
+		"allowSyntheticDefaultImports": true
 	},
 	"include": [ ],
 }

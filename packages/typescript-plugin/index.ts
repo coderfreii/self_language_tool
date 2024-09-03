@@ -5,11 +5,10 @@ import { projects, startNamedPipeServer } from './lib/server';
 import { FileMap } from '@volar/language-core/lib/utils';
 
 const windowsPathReg = /\\/g;
-
-export const plugin = createLanguageServicePlugin(
+const plugin = createLanguageServicePlugin(
 	(ts, info) => {
 		const vueOptions = getVueCompilerOptions();
-		const languagePlugin = vue.createVueLanguagePlugin<string>(
+		const vueLanguagePlugin = vue.createVueLanguagePlugin<string>(
 			ts,
 			id => id,
 			() => info.languageServiceHost.getProjectVersion?.() ?? '',
@@ -27,7 +26,7 @@ export const plugin = createLanguageServicePlugin(
 		);
 
 		return {
-			languagePlugins: [languagePlugin],
+			vueLanguagePlugins: [vueLanguagePlugin],
 			setup: language => {
 				projects.set(info.project, { info, language, vueOptions });
 
@@ -55,3 +54,5 @@ export const plugin = createLanguageServicePlugin(
 		}
 	}
 );
+
+export = plugin;

@@ -1,4 +1,3 @@
-// import { VueVirtualCode, isSemanticTokensEnabled } from '@vue/language-core';
 import type * as ts from 'typescript';
 import type { RequestContext } from './types';
 import { isSemanticTokensEnabled } from '@volar/language-core/lib/editorFeatures';

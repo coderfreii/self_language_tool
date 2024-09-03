@@ -15,8 +15,10 @@ function patchTypescriptLanguageFeaturesExtention() {
 
 		const enabledHybridMode = appContext.getCurrentHybridModeStatus();
 		const enabledTypeScriptPlugin = appContext.getCurrentTypeScriptPluginStatus();
+
+		const pluginName = "@vue/typescript-plugin"
+
 		// @ts-expect-error
-		
 		fs.readFileSync = (...args) => {
 			if (args[0] === extensionJsPath) {
 				let text = readFileSync(...args) as string;
@@ -24,7 +26,7 @@ function patchTypescriptLanguageFeaturesExtention() {
 				if (!enabledTypeScriptPlugin) {
 					text = text.replace(
 						'for(const e of n.contributes.typescriptServerPlugins',
-						s => s + `.filter(p=>p.name!=='typescript-vue-plugin-bundle')`
+						s => s + `.filter(p=>p.name!=='${pluginName}')`
 					);
 				}
 				else if (enabledHybridMode) {
@@ -33,7 +35,7 @@ function patchTypescriptLanguageFeaturesExtention() {
 						'languages:Array.isArray(e.languages)',
 						[
 							'languages:',
-							`e.name==='typescript-vue-plugin-bundle'?[${config.server.includeLanguages.map(lang => `"${lang}"`).join(',')}]`,
+							`e.name==='${pluginName}'?[${config.server.includeLanguages.map(lang => `"${lang}"`).join(',')}]`,
 							':Array.isArray(e.languages)',
 						].join(''),
 					);

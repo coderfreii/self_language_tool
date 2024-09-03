@@ -2,7 +2,7 @@
 	"private": true,
 	"packageManager": "pnpm@9.1.2",
 	"scripts": {
-		"build": " tsc --build",
+		"build": " tsc -b",
 		"clean": "tsc -b --clean",
 		"watch": "npm run build && (npm run watch:base & npm run watch:vue)",
 		"watch:base": "tsc -b -w",

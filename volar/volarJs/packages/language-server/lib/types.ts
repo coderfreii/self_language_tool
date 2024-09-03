@@ -5,7 +5,6 @@ import type { ProviderResult } from '@volar/language-service/lib/types';
 import type { InitializeResult } from 'vscode-languageserver-protocol';
 
 export interface ProjectFacade {
-	// setup(server: LanguageServer): void;
 	reolveLanguageServiceByUri(uri: URI): ProviderResult<LanguageService>;
 	getExistingLanguageServices(): ProviderResult<LanguageService[]>;
 	reload(): void;

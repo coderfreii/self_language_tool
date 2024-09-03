@@ -2,7 +2,7 @@ import * as _  from 'vscode-languageserver';
 import * as __ from '@volar/language-core/lib/types';
 import * as ___ from 'vscode-languageserver/node';
 
-import * as assert from 'assert';
+import assert from 'assert';
 import * as cp from 'child_process';
 import * as fs from 'fs';
 import { TextDocument } from 'vscode-languageserver-textdocument';
