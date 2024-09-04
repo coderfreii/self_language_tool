@@ -1,4 +1,3 @@
-// import type { LanguageServicePluginInstance } from '@volar/language-service';
 import type * as vscode from 'vscode-languageserver-protocol';
 import type { LanguageServicePlugin, LanguageServicePluginInstance, VueCodeInformation } from '../types';
 import { URI } from 'vscode-uri';

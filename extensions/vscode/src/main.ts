@@ -9,7 +9,7 @@ import { forCompatible } from './common/compatible';
 
 import * as volarLsp from '@volar/vscode';
 import type { VueInitializationOptions } from '@vue/language-server/lib/types';
-import { patch } from './patch';
+// import { patch } from './patch';
 
 
 export type CreateLanguageClient = (
@@ -78,7 +78,14 @@ function createClient(id: string,
 		runOptions.execArgv ??= [];
 		runOptions.execArgv.push("--max-old-space-size=" + config.server.maxOldSpaceSize);
 	}
-	const debugOptions: lsp.ForkOptions = { execArgv: ['--nolazy', '--inspect=' + port] };
+
+
+	let VOLAR_DEBUG = "--inspect=";
+	if (process.env.VOLAR_DEBUG === "1") {
+		VOLAR_DEBUG = "--inspect-brk=";
+	}
+
+	const debugOptions: lsp.ForkOptions = { execArgv: ['--nolazy', VOLAR_DEBUG + port] };
 	const serverOptions: lsp.ServerOptions = {
 		run: {
 			module: serverModule.fsPath,
@@ -133,4 +140,4 @@ function updateProviders(client: lsp.LanguageClient) {
 }
 
 
-patch.patchTypescriptLanguageFeaturesExtention();
+// patch.patchTypescriptLanguageFeaturesExtention();

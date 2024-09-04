@@ -50,14 +50,25 @@ export function createLanguageService(
 	plugins: LanguageServicePlugin[],
 	env: LanguageServiceEnvironment
 ) {
+
+	const context = createLanguageServiceContext(language, plugins, env);
+
+	const langaugeService = createLanguageServiceBase(plugins, context);
+	return langaugeService;
+}
+
+
+function createLanguageServiceContext(language: Language<URI>,
+	plugins: LanguageServicePlugin[],
+	env: LanguageServiceEnvironment) {
 	const documentVersions = createUriMap<number>();
 	const map2DocMap = new WeakMap<SourceMap<CodeInformation>, SourceMapWithDocuments>();
 	const mirrorMap2DocMirrorMap = new WeakMap<LinkedCodeMap, LinkedCodeMapWithDocument>();
 	const snapshot2Doc = new WeakMap<ts.IScriptSnapshot, UriMap<TextDocument>>();
 	const embeddedContentScheme = 'volar-embedded-content';
 	const context: LanguageServiceContext = {
+		getLanguageService: undefined as unknown as () => LanguageService,
 		language,
-		getLanguageService: () => langaugeService,
 		documents: {
 			get(uri, languageId, snapshot) {
 				if (!snapshot2Doc.has(snapshot)) {
@@ -206,15 +217,18 @@ export function createLanguageService(
 	for (const plugin of plugins) {
 		context.plugins.push([plugin, plugin.create(context)]);
 	}
-	const langaugeService = createLanguageServiceBase(plugins, context);
-	return langaugeService;
+
+	return context
 }
 
 function createLanguageServiceBase(
 	plugins: LanguageServicePlugin[],
 	context: LanguageServiceContext
 ) {
-	return {
+
+
+	const languageService =
+	{
 		getSemanticTokenLegend: () => {
 			const tokenModifiers = plugins.map(plugin => plugin.capabilities.semanticTokensProvider?.legend?.tokenModifiers ?? []).flat();
 			const tokenTypes = plugins.map(plugin => plugin.capabilities.semanticTokensProvider?.legend?.tokenTypes ?? []).flat();
@@ -269,4 +283,8 @@ function createLanguageServiceBase(
 		dispose: () => context.plugins.forEach(plugin => plugin[1].dispose?.()),
 		context,
 	};
+
+	context.getLanguageService = () => languageService;
+
+	return languageService;
 }

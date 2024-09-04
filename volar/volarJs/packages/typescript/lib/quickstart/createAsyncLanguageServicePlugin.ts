@@ -5,7 +5,6 @@ import { decorateLanguageServiceHost, searchExternalFiles } from '../node/decora
 import { arrayItemsEqual } from './createLanguageServicePlugin';
 import { createLanguage } from '@volar/language-core';
 import type { Language, LanguagePlugin } from '@volar/language-core/lib/types';
-import { FileMap } from '@volar/language-core/lib/utils';
 
 const externalFiles = new WeakMap<ts.server.Project, string[]>();
 const decoratedLanguageServices = new WeakSet<ts.LanguageService>();
@@ -71,29 +70,19 @@ export function createAsyncLanguageServicePlugin(
 					}
 
 					create(ts, info).then(({ languagePlugins, setup }) => {
-						const syncedScriptVersions = new FileMap<string>(ts.sys.useCaseSensitiveFileNames);
 						const language = createLanguage<string>(
 							[
 								...languagePlugins,
-								{ getLanguageId: resolveFileLanguageId },
+								{ resolveLanguageId: resolveFileLanguageId },
 							],
-							new FileMap(ts.sys.useCaseSensitiveFileNames),
-							fileName => {
-								const version = getScriptVersion(fileName);
-								if (syncedScriptVersions.get(fileName) === version) {
-									return;
-								}
-								syncedScriptVersions.set(fileName, version);
-
-								const snapshot = getScriptSnapshot(fileName);
-								if (snapshot) {
-									language.scripts.set(
-										fileName,
-										snapshot
-									);
-								} else {
-									language.scripts.delete(fileName);
-								}
+							ts.sys.useCaseSensitiveFileNames,
+							{
+								getScriptSnapshot(fileName) {
+									return {
+										snapshot: getScriptSnapshot(fileName)
+									};
+								},
+								getScriptVersion
 							}
 						);
 

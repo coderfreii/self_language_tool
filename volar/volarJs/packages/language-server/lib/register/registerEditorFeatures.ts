@@ -1,6 +1,6 @@
 import { createUriMap } from '@volar/language-service/lib/utils/uriMap';
 import { type DataTransferItem } from '@volar/language-service/lib/types';
-import type * as ts from 'typescript';
+import * as ts from 'typescript';
 import {
 	DocumentDropRequest,
 	DocumentDrop_DataTransferItemAsStringRequest,

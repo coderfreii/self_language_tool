@@ -221,15 +221,15 @@ export function createServerBase(
 	function resolveCapabilitiesFromPlugin(): vscode.ServerCapabilities<any> {
 		const capabilitiesArr = server.languageServicePlugins.map(plugin => plugin.capabilities);
 
-		const capabilities = {
-			selectionRangeProvider: capabilitiesArr.some(data => data.selectionRangeProvider) ? true : undefined,
-			foldingRangeProvider: capabilitiesArr.some(data => data.foldingRangeProvider) ? true : undefined,
-			linkedEditingRangeProvider: capabilitiesArr.some(data => data.linkedEditingRangeProvider) ? true : undefined,
-			colorProvider: capabilitiesArr.some(data => data.colorProvider) ? true : undefined,
-			documentSymbolProvider: capabilitiesArr.some(data => data.documentSymbolProvider) ? true : undefined,
-			documentFormattingProvider: capabilitiesArr.some(data => data.documentFormattingProvider) ? true : undefined,
-			documentRangeFormattingProvider: capabilitiesArr.some(data => data.documentFormattingProvider) ? true : undefined,
-			referencesProvider: capabilitiesArr.some(data => data.referencesProvider) ? true : undefined,
+		const capabilities: vscode.ServerCapabilities<any> = {
+			selectionRangeProvider: resolveSelectionRangeProvider(),
+			foldingRangeProvider: foldingRangeProvider(),
+			linkedEditingRangeProvider: linkedEditingRangeProvider(),
+			colorProvider: colorProvider(),
+			documentSymbolProvider: documentSymbolProvider(),
+			documentFormattingProvider: documentFormattingProvider(),
+			documentRangeFormattingProvider: documentRangeFormattingProvider(),
+			referencesProvider: referencesProvider(),
 			implementationProvider: capabilitiesArr.some(data => data.implementationProvider) ? true : undefined,
 			definitionProvider: capabilitiesArr.some(data => data.definitionProvider) ? true : undefined,
 			typeDefinitionProvider: capabilitiesArr.some(data => data.typeDefinitionProvider) ? true : undefined,
@@ -243,9 +243,7 @@ export function createServerBase(
 			documentLinkProvider: capabilitiesArr.some(data => data.documentLinkProvider)
 				? { resolveProvider: capabilitiesArr.some(data => data.documentLinkProvider?.resolveProvider) || undefined }
 				: undefined,
-			codeLensProvider: capabilitiesArr.some(data => data.codeLensProvider)
-				? { resolveProvider: capabilitiesArr.some(data => data.codeLensProvider?.resolveProvider) || undefined }
-				: undefined,
+			codeLensProvider: codeLensProvider(),
 			inlayHintProvider: capabilitiesArr.some(data => data.inlayHintProvider)
 				? { resolveProvider: capabilitiesArr.some(data => data.inlayHintProvider?.resolveProvider) || undefined }
 				: undefined,
@@ -294,6 +292,44 @@ export function createServerBase(
 				: undefined,
 		};
 
+
+		function resolveSelectionRangeProvider() {
+			return capabilitiesArr.some(data => data.selectionRangeProvider) ? true : undefined;
+		}
+
+		function foldingRangeProvider() {
+			return capabilitiesArr.some(data => data.foldingRangeProvider) ? true : undefined;
+		}
+
+		function linkedEditingRangeProvider() {
+			return capabilitiesArr.some(data => data.linkedEditingRangeProvider) ? true : undefined;
+		}
+
+		function colorProvider() {
+			return capabilitiesArr.some(data => data.colorProvider) ? true : undefined;
+		}
+
+		function documentSymbolProvider() {
+			return capabilitiesArr.some(data => data.documentSymbolProvider) ? true : undefined;
+		}
+		function documentFormattingProvider() {
+			return capabilitiesArr.some(data => data.documentFormattingProvider) ? true : undefined;
+		}
+		function documentRangeFormattingProvider() {
+			return capabilitiesArr.some(data => data.documentFormattingProvider) ? true : undefined;
+		}
+
+		function referencesProvider() {
+			return capabilitiesArr.some(data => data.referencesProvider) ? true : undefined;
+		}
+
+
+
+		function codeLensProvider() {
+			return capabilitiesArr.some(data => data.codeLensProvider)
+				? { resolveProvider: capabilitiesArr.some(data => data.codeLensProvider?.resolveProvider) || undefined }
+				: undefined;
+		}
 
 
 		if (capabilitiesArr.some(data => data.autoInsertionProvider)) {

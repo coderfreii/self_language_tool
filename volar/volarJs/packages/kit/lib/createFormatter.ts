@@ -5,7 +5,6 @@ import { createServiceEnvironment } from './createServiceEnvironment';
 import type { LanguagePlugin } from '@volar/language-core/lib/types';
 import { createLanguage } from '@volar/language-core';
 import type { LanguageServicePlugin } from '@volar/language-service/lib/types';
-import { createUriMap } from '@volar/language-service/lib/utils/uriMap';
 import { createLanguageService } from '@volar/language-service/lib/languageService';
 import {FormattingOptions}  from 'vscode-languageserver-types'
 export function createFormatter(
@@ -16,7 +15,7 @@ export function createFormatter(
 
 	const fakeUri = URI.parse('file:///dummy.txt');
 	const env = createServiceEnvironment(() => settings);
-	const language = createLanguage(languages, createUriMap(false), () => { });
+	const language = createLanguage(languages, false);
 	const languageService = createLanguageService(
 		language,
 		services,

@@ -83,31 +83,31 @@ function createTypeScriptCheckerWorker(
 	const language = createLanguage(
 		[
 			...languagePlugins,
-			{ getLanguageId: uri => resolveFileLanguageId(uri.path) },
+			{ resolveLanguageId: uri => resolveFileLanguageId(uri.path) },
 		],
-		createUriMap(ts.sys.useCaseSensitiveFileNames),
-		uri => {
-			// fs files
-			const cache = fsFileSnapshots.get(uri);
-			const fileName = uriToFileName(uri);
-			const modifiedTime = ts.sys.getModifiedTime?.(fileName)?.valueOf();
-			if (!cache || cache[0] !== modifiedTime) {
-				if (ts.sys.fileExists(fileName)) {
-					const text = ts.sys.readFile(fileName);
-					const snapshot = text !== undefined ? ts.ScriptSnapshot.fromString(text) : undefined;
-					fsFileSnapshots.set(uri, [modifiedTime, snapshot]);
+		ts.sys.useCaseSensitiveFileNames,
+		{
+			getScriptSnapshot(uri) {
+				// fs files
+				const cache = fsFileSnapshots.get(uri);
+				const fileName = uriToFileName(uri);
+				const modifiedTime = ts.sys.getModifiedTime?.(fileName)?.valueOf();
+				if (!cache || cache[0] !== modifiedTime) {
+					if (ts.sys.fileExists(fileName)) {
+						const text = ts.sys.readFile(fileName);
+						const snapshot = text !== undefined ? ts.ScriptSnapshot.fromString(text) : undefined;
+						fsFileSnapshots.set(uri, [modifiedTime, snapshot]);
+					}
+					else {
+						fsFileSnapshots.set(uri, [modifiedTime, undefined]);
+					}
 				}
-				else {
-					fsFileSnapshots.set(uri, [modifiedTime, undefined]);
+				const snapshot = fsFileSnapshots.get(uri)?.[1];
+
+				return {
+					snapshot
 				}
-			}
-			const snapshot = fsFileSnapshots.get(uri)?.[1];
-			if (snapshot) {
-				language.scripts.set(uri, snapshot);
-			}
-			else {
-				language.scripts.delete(uri);
-			}
+			},
 		}
 	);
 	const projectHost = getProjectHost(env);

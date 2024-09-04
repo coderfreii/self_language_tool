@@ -1,5 +1,5 @@
 import { SourceMap } from '@volar/source-map';
-import type * as ts from 'typescript';
+import * as ts from 'typescript';
 import { LinkedCodeMap } from './lib/linkedCodeMap';
 import type {
 	CodeInformation,
@@ -9,17 +9,47 @@ import type {
 	SourceScript,
 	VirtualCode,
 } from './lib/types';
-
-export function createLanguage<T>(
+import { createUriMap, type KeyType } from '@volar/language-service/lib/utils/uriMap';
+export function createLanguage<T extends KeyType>(
 	plugins: LanguagePlugin<T>[],
-	scriptRegistry: Map<T, SourceScript<T>>,
-	sync: (id: T) => void
+	usecasesensitiveFileNames: boolean,
+	forscriptsync?: {
+		getScriptSnapshot: (fileName: T) => { snapshot?: ts.IScriptSnapshot | undefined; languageId?: string; };
+		getScriptVersion?: (fileName: T) => string;
+	}
 ): Language<T> {
 	const virtualCodeToSourceScriptMap = new WeakMap<VirtualCode, SourceScript<T>>();
 	const virtualCodeToSourceMap = new WeakMap<ts.IScriptSnapshot, WeakMap<ts.IScriptSnapshot, SourceMap<CodeInformation>>>();
 	const virtualCodeToLinkedCodeMap = new WeakMap<ts.IScriptSnapshot, [ts.IScriptSnapshot, LinkedCodeMap | undefined]>();
 
-	return {
+
+	const scriptRegistry = createUriMap<SourceScript<T>, T>(usecasesensitiveFileNames);
+
+	const syncedscriptVersions = createUriMap<string, T>(usecasesensitiveFileNames);
+
+	function checkVersion(fileName: T) {
+		if (forscriptsync) {
+			if (forscriptsync.getScriptVersion) {
+				const version = forscriptsync.getScriptVersion(fileName);
+				if (syncedscriptVersions.get(fileName) === version) {
+					return false;
+				}
+				syncedscriptVersions.set(fileName, version);
+				return true;
+			}
+			return true;
+		}
+	}
+
+
+	function sync(fileName: T) {
+		if (checkVersion(fileName)) {
+			update(fileName);
+		}
+	}
+
+
+	const res: Language<T> = {
 		plugins,
 		scripts: {
 			fromVirtualCode(virtualCode) {
@@ -37,7 +67,7 @@ export function createLanguage<T>(
 			set(id, snapshot, languageId, _plugins = plugins) {
 				if (!languageId) {
 					for (const plugin of plugins) {
-						languageId = plugin.getLanguageId?.(id);
+						languageId = plugin.resolveLanguageId?.(id);
 						if (languageId) {
 							break;
 						}
@@ -194,6 +224,21 @@ export function createLanguage<T>(
 		},
 	};
 
+
+	function update(fileName: T) {
+		if (forscriptsync) {
+			const snapshot = forscriptsync.getScriptSnapshot(fileName);
+			if (snapshot.snapshot) {
+				res.scripts.set(fileName, snapshot.snapshot, snapshot.languageId);
+			}
+			else {
+				res.scripts.delete(fileName);
+			}
+		}
+	}
+
+	return res;
+
 	function triggerTargetsDirty(sourceScript: SourceScript<T>) {
 		sourceScript.targetIds.forEach(id => {
 			const sourceScript = scriptRegistry.get(id);
@@ -223,6 +268,7 @@ export function createLanguage<T>(
 	}
 }
 
+
 export function* forEachEmbeddedCode(virtualCode: VirtualCode): Generator<VirtualCode> {
 	yield virtualCode;
 	if (virtualCode.embeddedCodes) {
@@ -231,3 +277,4 @@ export function* forEachEmbeddedCode(virtualCode: VirtualCode): Generator<Virtua
 		}
 	}
 }
+

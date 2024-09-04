@@ -2,7 +2,7 @@ import { createLanguage } from '@volar/language-core';
 import type { Language, LanguagePlugin } from '@volar/language-core/lib/types.js';
 import type { LanguageServiceEnvironment, LanguageServicePlugin } from '@volar/language-service/lib/types.js';
 
-import {  	createLanguageService as _createLanguageService } from '@volar/language-service/lib/languageService.js';
+import { createLanguageService as _createLanguageService } from '@volar/language-service/lib/languageService.js';
 import { createUriMap } from '@volar/language-service/lib/utils/uriMap.js';
 // import {
 // 	LanguageServicePlugin,
@@ -39,26 +39,30 @@ export function createSimpleWorkerService<T = {}>({
 	const snapshots = new Map<monaco.worker.IMirrorModel, readonly [number, ts.IScriptSnapshot]>();
 	const language = createLanguage<URI>(
 		languagePlugins,
-		createUriMap(false),
-		uri => {
-			const model = workerContext.getMirrorModels().find(model => model.uri.toString() === uri.toString());
-			if (model) {
-				const cache = snapshots.get(model);
-				if (cache && cache[0] === model.version) {
-					return;
+		false,
+		{
+			getScriptSnapshot(uri) {
+				const model = workerContext.getMirrorModels().find(model => model.uri.toString() === uri.toString());
+				if (model) {
+					const cache = snapshots.get(model);
+					if (cache && cache[0] === model.version) {
+						return {};
+					}
+					const text = model.getValue();
+					const snapshot: ts.IScriptSnapshot = {
+						getText: (start, end) => text.substring(start, end),
+						getLength: () => text.length,
+						getChangeRange: () => undefined,
+					};
+					snapshots.set(model, [model.version, snapshot]);
+					language.scripts.set(uri, snapshot);
+
+					return {
+						snapshot
+					};
 				}
-				const text = model.getValue();
-				const snapshot: ts.IScriptSnapshot = {
-					getText: (start, end) => text.substring(start, end),
-					getLength: () => text.length,
-					getChangeRange: () => undefined,
-				};
-				snapshots.set(model, [model.version, snapshot]);
-				language.scripts.set(uri, snapshot);
-			}
-			else {
-				language.scripts.delete(uri);
-			}
+				return {};
+			},
 		}
 	);
 
@@ -96,36 +100,34 @@ export function createTypeScriptWorkerService<T = {}>({
 	const language = createLanguage<URI>(
 		[
 			...languagePlugins,
-			{ getLanguageId: uri => resolveFileLanguageId(uri.path) },
+			{ resolveLanguageId: uri => resolveFileLanguageId(uri.path) },
 		],
-		createUriMap(sys.useCaseSensitiveFileNames),
-		uri => {
-			let snapshot = getModelSnapshot(uri);
-
-			if (!snapshot) {
-				// fs files
-				const cache = fsFileSnapshots.get(uri);
-				const fileName = uriConverter.asFileName(uri);
-				const modifiedTime = sys.getModifiedTime?.(fileName)?.valueOf();
-				if (!cache || cache[0] !== modifiedTime) {
-					if (sys.fileExists(fileName)) {
-						const text = sys.readFile(fileName);
-						const snapshot = text !== undefined ? ts.ScriptSnapshot.fromString(text) : undefined;
-						fsFileSnapshots.set(uri, [modifiedTime, snapshot]);
+		sys.useCaseSensitiveFileNames,
+		{
+			getScriptSnapshot(uri) {
+				let snapshot = getModelSnapshot(uri);
+				if (!snapshot) {
+					// fs files
+					const cache = fsFileSnapshots.get(uri);
+					const fileName = uriConverter.asFileName(uri);
+					const modifiedTime = sys.getModifiedTime?.(fileName)?.valueOf();
+					if (!cache || cache[0] !== modifiedTime) {
+						if (sys.fileExists(fileName)) {
+							const text = sys.readFile(fileName);
+							const snapshot = text !== undefined ? ts.ScriptSnapshot.fromString(text) : undefined;
+							fsFileSnapshots.set(uri, [modifiedTime, snapshot]);
+						}
+						else {
+							fsFileSnapshots.set(uri, [modifiedTime, undefined]);
+						}
 					}
-					else {
-						fsFileSnapshots.set(uri, [modifiedTime, undefined]);
-					}
+					snapshot = fsFileSnapshots.get(uri)?.[1];
 				}
-				snapshot = fsFileSnapshots.get(uri)?.[1];
-			}
 
-			if (snapshot) {
-				language.scripts.set(uri, snapshot);
-			}
-			else {
-				language.scripts.delete(uri);
-			}
+				return {
+					snapshot
+				}
+			},
 		}
 	);
 	language.typescript = {

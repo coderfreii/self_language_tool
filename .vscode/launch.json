@@ -2,19 +2,20 @@
 {
 	"version": "0.2.0",
 	"configurations": [
+		
 		{
 			"name": "Launch Client",
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
 			"env": {
-				"TSS_DEBUG": "8455"
+				"TSS_DEBUG": "8455",
+				"VOLAR_DEBUG": "1"
 			},
 			"args": [
 				"--disable-extensions",
 				"--extensionDevelopmentPath=${workspaceRoot}/extensions/vscode",
-				"--user-data-dir ~/.vscode-debug/"
-				// "--folder-uri=D:/learnCode/frondend/ts/base-project"
+				// "--user-data-dir ~/.vscode-debug/"
 			],
 			"outFiles": [
 				"${workspaceRoot}/**/*.js"
@@ -45,18 +46,22 @@
 		{
 			"name": "Attach to Language Server",
 			"type": "node",
+			"autoAttachChildProcesses": true,
+			"continueOnAttach": true,
 			"request": "attach",
 			"port": 7009,
 			"restart": true,
 			"outFiles": [
 				"${workspaceRoot}/**/*.js"
-			]
+			],
+
 		},
 		{
 
 			"name": "Attach to TS Server",
 			"type": "node",
 			"request": "attach",
+			"continueOnAttach": true,
 			"port": 8455,
 			"sourceMaps": true,
 			"restart": true,

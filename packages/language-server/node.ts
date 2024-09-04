@@ -1,6 +1,6 @@
 import { createServerWithConnection, loadTsdkByPath } from '@volar/language-server/node';
-import { ParsedCommandLine, VueCompilerOptions, createParsedCommandLineWithVueOptions, createVueLanguagePlugin, parse, resolveVueCompilerOptions } from '@vue/language-core';
-import { LanguageServiceEnvironment, convertAttrName, convertTagName, createDefaultGetTsPluginClient, detect, getVueLanguageServicePlugins, type TsPluginClientProvider, type VueCompilerOptionsProvider } from '@vue/language-service';
+import { ParsedCommandLine, VueCompilerOptions, createParsedCommandLineWithVueOptions, createLanguagePlugin, parse, resolveVueCompilerOptions } from '@vue/language-core';
+import { LanguageServiceEnvironment, convertAttrName, convertTagName, createDefaultGetTsPluginClient, detect, getLanguageServicePlugins , type TsPluginClientProvider, type VueCompilerOptionsProvider } from '@vue/language-service';
 import * as tsPluginClient from '@vue/typescript-plugin/lib/client';
 import { searchNamedPipeServerForFile } from '@vue/typescript-plugin/lib/utils';
 import { URI } from 'vscode-uri';
@@ -32,8 +32,6 @@ const languagePluginsProvider: LanguagePluginProvider = (env, ctx) => getLanguag
 
 const watchedExtensions = new Set<string>();
 
-
-
 const server = createServerWithConnection();
 
 server.start();
@@ -47,7 +45,7 @@ server.onInitialize(params => {
 
 	tsPluginClientProvider = resolveTsPlugin();
 
-	const plugins = getVueLanguageServicePlugins(
+	const plugins = getLanguageServicePlugins(
 		tsdk.typescript,
 		vueCompilerOptionsProvider,
 		tsPluginClientProvider,
@@ -71,7 +69,11 @@ server.onInitialize(params => {
 	};
 });
 
-
+server.connection.onSelectionRanges((_a,_b,_c,_d) => {
+	console.log(999);
+	
+		return  	 []
+})
 
 server.connection.onRequest(ParseSFCRequest.type, params => {
 	return parse(params);
@@ -113,12 +115,11 @@ async function getService(uri: URI) {
 }
 
 
-const getLanguagePlugins: GetLanguagePlugin<URI> = async ({ serviceEnv, configFileName, projectHost, sys, asFileName }) => {
+const getLanguagePlugins: GetLanguagePlugin<URI> = async ({ serviceEnv, configFileName, projectHost, sys }) => {
 	const commandLine = await parseCommandLine();
 	const vueOptions = commandLine?.vueOptions ?? resolveVueCompilerOptions({});
-	const vueLanguagePlugin = createVueLanguagePlugin(
+	const languagePlugin = createLanguagePlugin(
 		tsdk.typescript,
-		asFileName,
 		() => projectHost?.getProjectVersion?.() ?? '',
 		fileName => {
 			const fileMap = new FileMap(sys?.useCaseSensitiveFileNames ?? false);
@@ -148,7 +149,7 @@ const getLanguagePlugins: GetLanguagePlugin<URI> = async ({ serviceEnv, configFi
 
 	envToVueOptions.set(serviceEnv, vueOptions);
 
-	return [vueLanguagePlugin];
+	return [languagePlugin];
 
 	async function parseCommandLine() {
 		let commandLine: ParsedCommandLine | undefined;

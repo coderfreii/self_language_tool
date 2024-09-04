@@ -9,6 +9,7 @@ import useMdFilePlugin from './plugins/file-md';
 import useVueFilePlugin from './plugins/file-vue';
 import { forEachEmbeddedCode } from '@volar/language-core';
 import type { LanguagePlugin } from '@volar/language-core/lib/types';
+import type { KeyType } from '@volar/language-service/lib/utils/uriMap';
 
 const normalFileRegistries: {
 	key: string;
@@ -52,14 +53,8 @@ function getFileRegistryKey(
 	return JSON.stringify(values);
 }
 
-export function createVueLanguagePlugin<T>(
-	ts: typeof import('typescript'),
-	asFileName: (scriptId: T) => string,
-	getProjectVersion: () => string,
-	isRootFile: (fileName: string) => boolean,
-	compilerOptions: ts.CompilerOptions,
-	vueCompilerOptions: VueCompilerOptions
-): LanguagePlugin<T, VueVirtualCode> {
+
+function resolvePluginContext(vueCompilerOptions: VueCompilerOptions, compilerOptions: ts.CompilerOptions, ts: typeof import('typescript')) {
 	const pluginContext: Parameters<VueLanguagePlugin>[0] = {
 		modules: {
 			'@vue/compiler-dom': vueCompilerOptions.target < 3
@@ -74,6 +69,19 @@ export function createVueLanguagePlugin<T>(
 		vueCompilerOptions,
 		globalTypesHolder: undefined,
 	};
+
+	return pluginContext;
+}
+
+export function createLanguagePlugin<T extends KeyType>(
+	ts: typeof import('typescript'),
+	getProjectVersion: () => string,
+	isRootFile: (fileName: string) => boolean,
+	compilerOptions: ts.CompilerOptions,
+	vueCompilerOptions: VueCompilerOptions
+): LanguagePlugin<T, VueVirtualCode> {
+	const pluginContext = resolvePluginContext(vueCompilerOptions, compilerOptions, ts);
+
 	const basePlugins = getBasePlugins(pluginContext);
 	const vueSfcPlugin = useVueFilePlugin(pluginContext);
 	const vitePressSfcPlugin = useMdFilePlugin(pluginContext);
@@ -81,21 +89,25 @@ export function createVueLanguagePlugin<T>(
 
 	let canonicalRootFileNamesVersion: string | undefined;
 
-	return {
-		getLanguageId(scriptId) {
-			if (vueCompilerOptions.extensions.some(ext => asFileName(scriptId).endsWith(ext))) {
+	function asFileNameStr(i: T) {
+		return i.toString();
+	}
+
+	const res: LanguagePlugin<T, VueVirtualCode> = {
+		resolveLanguageId(scriptId) {
+			if (vueCompilerOptions.extensions.some(ext => asFileNameStr(scriptId).endsWith(ext))) {
 				return 'vue';
 			}
-			if (vueCompilerOptions.vitePressExtensions.some(ext => asFileName(scriptId).endsWith(ext))) {
+			if (vueCompilerOptions.vitePressExtensions.some(ext => asFileNameStr(scriptId).endsWith(ext))) {
 				return 'markdown';
 			}
-			if (vueCompilerOptions.petiteVueExtensions.some(ext => asFileName(scriptId).endsWith(ext))) {
+			if (vueCompilerOptions.petiteVueExtensions.some(ext => asFileNameStr(scriptId).endsWith(ext))) {
 				return 'html';
 			}
 		},
 		createVirtualCode(scriptId, languageId, snapshot) {
-			if (languageId === 'vue' || languageId === 'markdown' || languageId === 'html' || languageId === 'typescriptreact-vtx') {
-				const fileName = asFileName(scriptId);
+			if (languageId === 'vue' || languageId === 'markdown' || languageId === 'html') {
+				const fileName = asFileNameStr(scriptId);
 				if (!pluginContext.globalTypesHolder && getProjectVersion() !== canonicalRootFileNamesVersion) {
 					canonicalRootFileNamesVersion = getProjectVersion();
 					if (isRootFile(fileName)) {
@@ -182,6 +194,9 @@ export function createVueLanguagePlugin<T>(
 		},
 	};
 
+
+
+	return res;
 	function getFileRegistry(isGlobalTypesHolder: boolean) {
 		return getVueFileRegistry(
 			isGlobalTypesHolder,
@@ -192,9 +207,9 @@ export function createVueLanguagePlugin<T>(
 }
 
 
-export function resolveVueLanguagePluginExtensions(languagePlugins: LanguagePlugin<string>[]){
+export function resolveVueLanguagePluginExtensions(languagePlugins: LanguagePlugin<string>[]) {
 	const extensions = languagePlugins
-	.map(plugin => plugin.typescript?.extraFileExtensions.map(ext => '.' + ext.extension) ?? [])
-	.flat();
-	return extensions
+		.map(plugin => plugin.typescript?.extraFileExtensions.map(ext => '.' + ext.extension) ?? [])
+		.flat();
+	return extensions;
 }

@@ -63,36 +63,36 @@ export function proxyCreateProgram(
 				language = createLanguage<string>(
 					[
 						...languagePlugins,
-						{ getLanguageId: resolveFileLanguageId },
+						{ resolveLanguageId: resolveFileLanguageId },
 					],
-					new FileMap(ts.sys.useCaseSensitiveFileNames),
-					fileName => {
-						if (!sourceFileSnapshots.has(fileName)) {
-							const sourceFileText = originalHost.readFile(fileName);
-							if (sourceFileText !== undefined) {
-								sourceFileSnapshots.set(fileName, [undefined, {
-									getChangeRange() {
-										return undefined;
-									},
-									getLength() {
-										return sourceFileText.length;
-									},
-									getText(start, end) {
-										return sourceFileText.substring(start, end);
-									},
-								}]);
+					ts.sys.useCaseSensitiveFileNames,
+					{
+						getScriptSnapshot(fileName) {
+							if (!sourceFileSnapshots.has(fileName)) {
+								const sourceFileText = originalHost.readFile(fileName);
+								if (sourceFileText !== undefined) {
+									sourceFileSnapshots.set(fileName, [undefined, {
+										getChangeRange() {
+											return undefined;
+										},
+										getLength() {
+											return sourceFileText.length;
+										},
+										getText(start, end) {
+											return sourceFileText.substring(start, end);
+										},
+									}]);
+								}
+								else {
+									sourceFileSnapshots.set(fileName, [undefined, undefined]);
+								}
 							}
-							else {
-								sourceFileSnapshots.set(fileName, [undefined, undefined]);
+							const snapshot = sourceFileSnapshots.get(fileName)?.[1];
+
+							return {
+								snapshot
 							}
-						}
-						const snapshot = sourceFileSnapshots.get(fileName)?.[1];
-						if (snapshot) {
-							language!.scripts.set(fileName, snapshot);
-						}
-						else {
-							language!.scripts.delete(fileName);
-						}
+						},
 					}
 				);
 			}

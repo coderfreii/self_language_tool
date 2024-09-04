@@ -2,6 +2,7 @@ import { SnapshotDocument } from "@volar/snapshot-document/lib/snapshotDocument"
 import type { LazyHolder } from "../server";
 import * as vscode from 'vscode-languageserver';
 import { URI } from "vscode-uri";
+import type { KeyType } from "@volar/language-service/lib/utils/uriMap";
 
 
 const syncedDocumentParsedUriToUri = new Map<string, string>();
@@ -29,16 +30,25 @@ function setup(holder: LazyHolder) {
 
 	return {
 		documents,
-		getSyncedDocumentKey
+		getSyncedDocumentKey,
+		getDocument
 	};
 
 
 
-	function getSyncedDocumentKey(uri: URI) {
+	function getSyncedDocumentKey(uri: KeyType) {
 		const originalUri = syncedDocumentParsedUriToUri.get(uri.toString());
 		if (originalUri) {
 			return originalUri;
 		}
+	}
+
+	function getDocument(uri: KeyType) {
+		const DocumentKey = getSyncedDocumentKey(uri);
+		if (DocumentKey) {
+			return documents.get(DocumentKey);
+		}
+		return undefined;
 	}
 
 }

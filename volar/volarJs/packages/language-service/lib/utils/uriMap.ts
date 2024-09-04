@@ -1,11 +1,13 @@
 import type { URI } from 'vscode-uri';
 
-export type UriMap<T> = ReturnType<typeof createUriMap<T>>;
+export type UriMap<T, K extends KeyType = URI> = ReturnType<typeof createUriMap<T, K>>;
 
-export function createUriMap<T>(caseSensitive = false): Map<URI, T> {
-	const map = new Map<string, T>();
+export type KeyType = { toString(skipEncoding?: boolean): string; };
+
+export function createUriMap<V, K extends KeyType = URI>(caseSensitive = false): Map<K, V> {
+	const map = new Map<string, V>();
 	const rawUriToNormalizedUri = new Map<string, string>();
-	const normalizedUriToRawUri = new Map<string, URI>();
+	const normalizedUriToRawUri = new Map<string, K>();
 
 	return {
 		get size() {
@@ -55,7 +57,7 @@ export function createUriMap<T>(caseSensitive = false): Map<URI, T> {
 		},
 	};
 
-	function toKey(uri: URI) {
+	function toKey(uri: K) {
 		const rawUri = uri.toString();
 		if (!rawUriToNormalizedUri.has(rawUri)) {
 			let normalizedUri = uri.toString();

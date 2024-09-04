@@ -3,14 +3,13 @@ import type { LanguageServer, ProjectFacade } from '../types';
 import type { LanguagePlugin } from '@volar/language-core/lib/types';
 import { createLanguage } from '@volar/language-core';
 import type { LanguageServiceEnvironment } from '@volar/language-service/lib/types';
-import { createUriMap } from '@volar/language-service/lib/utils/uriMap';
 import { createLanguageService, type LanguageService } from '@volar/language-service/lib/languageService';
 
 
-export function createSimpleProject( server : LanguageServer, languagePlugins: LanguagePlugin<URI>[]): ProjectFacade {
+export function createSimpleProject(server: LanguageServer, languagePlugins: LanguagePlugin<URI>[]): ProjectFacade {
 	let languageService: LanguageService | undefined;
 
-	let  _server : LanguageServer = server
+	let _server: LanguageServer = server;
 
 	return {
 		reolveLanguageServiceByUri() {
@@ -32,16 +31,18 @@ export function createSimpleProject( server : LanguageServer, languagePlugins: L
 	function create(server: LanguageServer) {
 		const language = createLanguage(
 			languagePlugins,
-			createUriMap(false),
-			uri => {
-				const documentKey = server.documents.getSyncedDocumentKey(uri) ?? uri.toString();
-				const document = server.documents.documents.get(documentKey);
-				if (document) {
-					language.scripts.set(uri, document.getSnapshot(), document.languageId);
+			false,
+			{
+				getScriptSnapshot(uri) {
+					const documentKey = server.documents.getSyncedDocumentKey(uri) ?? uri.toString();
+					const document = server.documents.documents.get(documentKey);
+
+					return {
+						snapshot: document?.getSnapshot(),
+						languageId: document?.languageId
+					};
 				}
-				else {
-					language.scripts.delete(uri);
-				}
+
 			},
 		);
 		return createLanguageService(

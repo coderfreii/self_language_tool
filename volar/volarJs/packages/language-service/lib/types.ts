@@ -1,4 +1,3 @@
-// import type { Language, SourceScript, VirtualCode } from '@volar/language-core';
 import type * as vscode from 'vscode-languageserver-protocol';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type * as ts from 'typescript';
@@ -8,7 +7,7 @@ import type { URI } from 'vscode-uri';
 import type { UriMap } from './utils/uriMap';
 import type { Language, VirtualCode, SourceScript } from '@volar/language-core/lib/types';
 
-// export type * from 'vscode-languageserver-protocol';
+
 
 export interface LanguageServiceEnvironment {
 	workspaceFolders: URI[];
@@ -102,16 +101,9 @@ export interface LanguageServicePlugin<P = any> {
 		hoverProvider?: boolean;
 		documentHighlightProvider?: boolean;
 		workspaceSymbolProvider?: boolean;
-		renameProvider?: {
-			prepareProvider?: boolean;
-		};
 		signatureHelpProvider?: {
 			triggerCharacters?: string[];
 			retriggerCharacters?: string[];
-		};
-		completionProvider?: {
-			resolveProvider?: boolean;
-			triggerCharacters?: string[];
 		};
 		autoInsertionProvider?: {
 			triggerCharacters: string[];
@@ -120,17 +112,24 @@ export interface LanguageServicePlugin<P = any> {
 		documentOnTypeFormattingProvider?: {
 			triggerCharacters: string[];
 		};
+		semanticTokensProvider?: {
+			legend: vscode.SemanticTokensLegend;
+		};
+		renameProvider?: {
+			prepareProvider?: boolean;
+		};
 		documentLinkProvider?: {
 			resolveProvider?: boolean;
+		};
+		completionProvider?: {
+			resolveProvider?: boolean;
+			triggerCharacters?: string[];
 		};
 		codeLensProvider?: {
 			resolveProvider?: boolean;
 		};
 		inlayHintProvider?: {
 			resolveProvider?: boolean;
-		};
-		semanticTokensProvider?: {
-			legend: vscode.SemanticTokensLegend;
 		};
 		codeActionProvider?: {
 			codeActionKinds?: string[];

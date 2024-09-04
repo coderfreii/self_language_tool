@@ -7,7 +7,7 @@ import type { LanguageServer } from '../types';
 import type { LanguagePlugin } from '@volar/language-core/lib/types';
 import { createLanguage } from '@volar/language-core';
 import type { LanguageServiceEnvironment } from '@volar/language-service/lib/types';
-import { type UriMap, createUriMap } from '@volar/language-service/lib/utils/uriMap';
+import { type KeyType, type UriMap, createUriMap } from '@volar/language-service/lib/utils/uriMap';
 import { createLanguageService, type LanguageService } from '@volar/language-service/lib/languageService';
 import type { LanguagePluginProvider } from './typescriptProjectFacade';
 
@@ -24,8 +24,8 @@ export interface ProjectExposeContext {
 	configFileName: string | undefined;
 	languageServiceHost: TypeScriptProjectLanguageServiceHost;
 	sys: ReturnType<typeof createSys>;
-	asUri(fileName: string): URI;
-	asFileName(scriptId: URI): string;
+	asUri(fileName: string): KeyType;
+	asFileName(scriptId: KeyType): string;
 }
 
 const fsFileSnapshots = createUriMap<[number | undefined, ts.IScriptSnapshot | undefined]>();
@@ -91,7 +91,7 @@ export async function createTypeScriptProject(
 		asFileName,
 		asUri,
 	});
-	
+
 
 	const docChangeWatcher = server.documents.documents.onDidChangeContent(() => {
 		projectVersion++;
@@ -106,45 +106,44 @@ export async function createTypeScriptProject(
 		[
 			...languagePlugins,
 			{
-				getLanguageId(uri) {
+				resolveLanguageId(uri) {
 					return resolveFileLanguageId(uri.fsPath);
 				},
 			},
 		],
-		createUriMap(sys.useCaseSensitiveFileNames),
-		uri => {
-			askedFiles.set(uri, true);
-			const documentUri = server.documents.getSyncedDocumentKey(uri);
+		sys.useCaseSensitiveFileNames,
+		{
+			getScriptSnapshot(uri) {
+				askedFiles.set(uri, true);
+				const documentUri = server.documents.getSyncedDocumentKey(uri);
 
-			let snapshot = documentUri
-				? server.documents.documents.get(documentUri)?.getSnapshot()
-				: undefined;
+				let snapshot = documentUri
+					? server.documents.documents.get(documentUri)?.getSnapshot()
+					: undefined;
 
-			if (!snapshot) {
-				// fs files
-				const cache = fsFileSnapshots.get(uri);
-				const fileName = asFileName(uri);
-				const modifiedTime = sys.getModifiedTime?.(fileName)?.valueOf();
-				if (!cache || cache[0] !== modifiedTime) {
-					if (sys.fileExists(fileName)) {
-						const text = sys.readFile(fileName);
-						const snapshot = text !== undefined ? ts.ScriptSnapshot.fromString(text) : undefined;
-						fsFileSnapshots.set(uri, [modifiedTime, snapshot]);
+				if (!snapshot) {
+					// fs files
+					const cache = fsFileSnapshots.get(uri);
+					const fileName = asFileName(uri);
+					const modifiedTime = sys.getModifiedTime?.(fileName)?.valueOf();
+					if (!cache || cache[0] !== modifiedTime) {
+						if (sys.fileExists(fileName)) {
+							const text = sys.readFile(fileName);
+							const snapshot = text !== undefined ? ts.ScriptSnapshot.fromString(text) : undefined;
+							fsFileSnapshots.set(uri, [modifiedTime, snapshot]);
+						}
+						else {
+							fsFileSnapshots.set(uri, [modifiedTime, undefined]);
+						}
 					}
-					else {
-						fsFileSnapshots.set(uri, [modifiedTime, undefined]);
-					}
+					snapshot = fsFileSnapshots.get(uri)?.[1];
 				}
-				snapshot = fsFileSnapshots.get(uri)?.[1];
-			}
 
-			if (snapshot) {
-				language.scripts.set(uri, snapshot);
+				return {
+					snapshot
+				};
 			}
-			else {
-				language.scripts.delete(uri);
-			}
-		},
+		}
 	);
 	language.typescript = {
 		configFileName: typeof tsconfig === 'string' ? tsconfig : undefined,

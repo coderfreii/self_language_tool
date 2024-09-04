@@ -2,7 +2,7 @@ import type * as ts from 'typescript';
 import * as path from 'path-browserify';
 import { code as typeHelpersCode } from 'vue-component-type-helpers';
 import { code as vue2TypeHelpersCode } from 'vue-component-type-helpers/vue2';
-import {  TypeScriptProjectLanguageServiceHost,  createTsLanguageServiceHost, resolveFileLanguageId } from '@volar/typescript';
+import { TypeScriptProjectLanguageServiceHost, createTsLanguageServiceHost, resolveFileLanguageId } from '@volar/typescript';
 
 import type {
 	MetaCheckerOptions,
@@ -16,15 +16,16 @@ import type {
 } from './types';
 import type { Language } from '@volar/language-core/lib/types';
 import { FileMap } from '@volar/language-core/lib/utils';
-import { VueVirtualCode, 
-	createLanguage, 
-	createParsedCommandLineWithVueOptions, 
+import {
+	VueVirtualCode,
+	createLanguage,
+	createParsedCommandLineWithVueOptions,
 	createParsedCommandLineWithVueOptionsByJson,
-	 createVueLanguagePlugin, 
-	 parseScriptSetupRanges, 
-	 type ParsedCommandLine, 
-	 type VueCompilerOptions 
-	} from '@vue/language-core';
+	createLanguagePlugin,
+	parseScriptSetupRanges,
+	type ParsedCommandLine,
+	type VueCompilerOptions
+} from '@vue/language-core';
 
 export * from './types';
 
@@ -158,9 +159,8 @@ export function baseCreate(
 		}
 	};
 
-	const vueLanguagePlugin = createVueLanguagePlugin<string>(
+	const vueLanguagePlugin = createLanguagePlugin<string>(
 		ts,
-		id => id,
 		() => projectHost.getProjectVersion?.() ?? '',
 		fileName => {
 			const fileMap = new FileMap(ts.sys.useCaseSensitiveFileNames);
@@ -176,20 +176,19 @@ export function baseCreate(
 		[
 			vueLanguagePlugin,
 			{
-				getLanguageId(fileName) {
+				resolveLanguageId(fileName) {
 					return resolveFileLanguageId(fileName);
 				},
 			},
 		],
-		new FileMap(ts.sys.useCaseSensitiveFileNames),
-		fileName => {
-			const snapshot = projectHost.getScriptSnapshot(fileName);
-			if (snapshot) {
-				language.scripts.set(fileName, snapshot);
-			}
-			else {
-				language.scripts.delete(fileName);
-			}
+		ts.sys.useCaseSensitiveFileNames,
+		{
+			getScriptSnapshot(fileName) {
+				const snapshot = projectHost.getScriptSnapshot(fileName);
+				return {
+					snapshot
+				};
+			},
 		},
 	);
 	language.typescript = {

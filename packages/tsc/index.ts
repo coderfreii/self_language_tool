@@ -30,9 +30,8 @@ export function run() {
 				options.host!.writeFile = (fileName, contents, ...args) => {
 					return writeFile(fileName, removeEmitGlobalTypes(contents), ...args);
 				};
-				const vueLanguagePlugin = vue.createVueLanguagePlugin<string>(
+				const vueLanguagePlugin = vue.createLanguagePlugin<string>(
 					ts,
-					id => id,
 					() => '',
 					fileName => {
 						const fileMap = new FileMap(options.host?.useCaseSensitiveFileNames?.() ?? false);

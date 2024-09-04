@@ -38,7 +38,7 @@ export type VueCompilerOptionsProvider = (env: LanguageServiceEnvironment) => Vu
 
 export type TsPluginClientProvider = (context: LanguageServiceContext) => typeof import('@vue/typescript-plugin/lib/client') | undefined;
 
-export function getVueLanguageServicePlugins(
+export function getLanguageServicePlugins(
 	ts: typeof import('typescript'),
 	vueCompilerOptionsProvider: VueCompilerOptionsProvider,
 	tsPluginClientProvider = createDefaultGetTsPluginClient(ts),
@@ -71,8 +71,6 @@ export function getVueLanguageServicePlugins(
 		createVueDocumentLinksPlugin(),
 		createVueAutoAddSpacePlugin(),
 		createVueVisualizeHiddenCallbackParamPlugin(),
-
-
 	);
 	return plugins;
 }

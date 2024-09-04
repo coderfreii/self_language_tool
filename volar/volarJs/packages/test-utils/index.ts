@@ -1,6 +1,6 @@
-import * as _  from 'vscode-languageserver';
+import * as vscode_languageserver  from 'vscode-languageserver';
 import * as __ from '@volar/language-core/lib/types';
-import * as ___ from 'vscode-languageserver/node';
+import * as vscode_languageserver_node from 'vscode-languageserver/node';
 
 import assert from 'assert';
 import * as cp from 'child_process';
@@ -23,7 +23,7 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 			stdio: 'pipe',
 		}
 	);
-	const connection = ___.createProtocolConnection(
+	const connection = vscode_languageserver_node.createProtocolConnection(
 		childProcess.stdout!,
 		childProcess.stdin!
 	);
@@ -37,8 +37,8 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 	connection.onClose(e => console.log(e));
 	connection.onUnhandledNotification(e => console.log(e));
 	connection.onError(e => console.log(e));
-	connection.onNotification(_.LogMessageNotification.type, e => {
-		if (e.type === _.MessageType.Error || e.type === _.MessageType.Warning) {
+	connection.onNotification(vscode_languageserver.LogMessageNotification.type, e => {
+		if (e.type === vscode_languageserver.MessageType.Error || e.type === vscode_languageserver.MessageType.Warning) {
 			console.error(e.message);
 		} else {
 			console.log(e.message);
@@ -47,7 +47,7 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 	connection.onDispose(() => {
 		connection.end();
 	});
-	connection.onRequest(_.ConfigurationRequest.type, ({ items }) => {
+	connection.onRequest(vscode_languageserver.ConfigurationRequest.type, ({ items }) => {
 		return items.map(item => {
 			if (item.section) {
 				return getConfiguration(item.section);
@@ -60,30 +60,30 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 		connection,
 		async initialize(
 			rootUri: string,
-			initializationOptions: _._InitializeParams['initializationOptions'],
-			capabilities: _.ClientCapabilities = {},
+			initializationOptions: vscode_languageserver._InitializeParams['initializationOptions'],
+			capabilities: vscode_languageserver.ClientCapabilities = {},
 			locale?: string
 		) {
 			const result = await connection.sendRequest(
-				_.InitializeRequest.type,
+				vscode_languageserver.InitializeRequest.type,
 				{
 					processId: childProcess.pid ?? null,
 					rootUri,
 					initializationOptions,
 					capabilities,
 					locale,
-				} satisfies _.InitializeParams
+				} satisfies vscode_languageserver.InitializeParams
 			);
 			await connection.sendNotification(
-				_.InitializedNotification.type,
-				{} satisfies _.InitializedParams
+				vscode_languageserver.InitializedNotification.type,
+				{} satisfies vscode_languageserver.InitializedParams
 			);
 			running = true;
 			return result;
 		},
 		async shutdown() {
 			running = false;
-			await connection.sendRequest(_.ShutdownRequest.type);
+			await connection.sendRequest(vscode_languageserver.ShutdownRequest.type);
 			openedDocuments.clear();
 		},
 		async openTextDocument(fileName: string, languageId: string) {
@@ -92,7 +92,7 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 				const document = TextDocument.create(uri, languageId, 0, fs.readFileSync(fileName, 'utf-8'));
 				openedDocuments.set(uri, document);
 				await connection.sendNotification(
-					_.DidOpenTextDocumentNotification.type,
+					vscode_languageserver.DidOpenTextDocumentNotification.type,
 					{
 						textDocument: {
 							uri,
@@ -100,7 +100,7 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 							version: document.version,
 							text: document.getText(),
 						},
-					} satisfies _.DidOpenTextDocumentParams
+					} satisfies vscode_languageserver.DidOpenTextDocumentParams
 				);
 			}
 			return openedDocuments.get(uri)!;
@@ -110,7 +110,7 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 			const document = TextDocument.create(uri, languageId, 0, content);
 			openedDocuments.set(uri, document);
 			await connection.sendNotification(
-				_.DidOpenTextDocumentNotification.type,
+				vscode_languageserver.DidOpenTextDocumentNotification.type,
 				{
 					textDocument: {
 						uri,
@@ -118,7 +118,7 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 						version: document.version,
 						text: document.getText(),
 					},
-				} satisfies _.DidOpenTextDocumentParams
+				} satisfies vscode_languageserver.DidOpenTextDocumentParams
 			);
 			return document;
 		},
@@ -130,7 +130,7 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 			const document = TextDocument.create(uri, languageId, (oldDocument?.version ?? 0) + 1, content);
 			openedDocuments.set(uri, document);
 			await connection.sendNotification(
-				_.DidOpenTextDocumentNotification.type,
+				vscode_languageserver.DidOpenTextDocumentNotification.type,
 				{
 					textDocument: {
 						uri,
@@ -138,7 +138,7 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 						version: document.version,
 						text: document.getText(),
 					},
-				} satisfies _.DidOpenTextDocumentParams
+				} satisfies vscode_languageserver.DidOpenTextDocumentParams
 			);
 			return document;
 		},
@@ -146,27 +146,27 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 			assert(openedDocuments.has(uri));
 			openedDocuments.delete(uri);
 			return connection.sendNotification(
-				_.DidCloseTextDocumentNotification.type,
+				vscode_languageserver.DidCloseTextDocumentNotification.type,
 				{
 					textDocument: { uri },
-				} satisfies _.DidCloseTextDocumentParams
+				} satisfies vscode_languageserver.DidCloseTextDocumentParams
 			);
 		},
-		async updateTextDocument(uri: string, edits: _.TextEdit[]) {
+		async updateTextDocument(uri: string, edits: vscode_languageserver.TextEdit[]) {
 			let document = openedDocuments.get(uri);
 			assert(document);
 			const newText = TextDocument.applyEdits(document, edits);
 			document = TextDocument.create(uri, document.languageId, document.version + 1, newText);
 			openedDocuments.set(uri, document);
 			await connection.sendNotification(
-				_.DidChangeTextDocumentNotification.type,
+				vscode_languageserver.DidChangeTextDocumentNotification.type,
 				{
 					textDocument: {
 						uri: document.uri,
 						version: document.version,
 					},
 					contentChanges: [{ text: document.getText() }],
-				} satisfies _.DidChangeTextDocumentParams
+				} satisfies vscode_languageserver.DidChangeTextDocumentParams
 			);
 			return document;
 		},
@@ -174,224 +174,224 @@ export function startLanguageServer(serverModule: string, cwd?: string | URL) {
 			Object.assign(settings, newSettings);
 			if (running) {
 				await connection.sendNotification(
-					_.DidChangeConfigurationNotification.type,
-					{ settings } satisfies _.DidChangeConfigurationParams
+					vscode_languageserver.DidChangeConfigurationNotification.type,
+					{ settings } satisfies vscode_languageserver.DidChangeConfigurationParams
 				);
 			}
 		},
-		didChangeWatchedFiles(changes: _.FileEvent[]) {
+		didChangeWatchedFiles(changes: vscode_languageserver.FileEvent[]) {
 			return connection.sendNotification(
-				_.DidChangeWatchedFilesNotification.type,
-				{ changes } satisfies _.DidChangeWatchedFilesParams
+				vscode_languageserver.DidChangeWatchedFilesNotification.type,
+				{ changes } satisfies vscode_languageserver.DidChangeWatchedFilesParams
 			);
 		},
-		async sendCompletionRequest(uri: string, position: _.Position) {
+		async sendCompletionRequest(uri: string, position: vscode_languageserver.Position) {
 			const result = await connection.sendRequest(
-				_.CompletionRequest.type,
+				vscode_languageserver.CompletionRequest.type,
 				{
 					textDocument: { uri },
 					position,
-				} satisfies _.CompletionParams
+				} satisfies vscode_languageserver.CompletionParams
 			);
 			// @volar/language-server only returns CompletionList
 			assert(!Array.isArray(result));
 			return result;
 		},
-		sendCompletionResolveRequest(item: _.CompletionItem) {
+		sendCompletionResolveRequest(item: vscode_languageserver.CompletionItem) {
 			return connection.sendRequest(
-				_.CompletionResolveRequest.type,
-				item satisfies _.CompletionItem
+				vscode_languageserver.CompletionResolveRequest.type,
+				item satisfies vscode_languageserver.CompletionItem
 			);
 		},
 		sendDocumentDiagnosticRequest(uri: string) {
 			return connection.sendRequest(
-				_.DocumentDiagnosticRequest.type,
+				vscode_languageserver.DocumentDiagnosticRequest.type,
 				{
 					textDocument: { uri },
-				} satisfies _.DocumentDiagnosticParams
+				} satisfies vscode_languageserver.DocumentDiagnosticParams
 			);
 		},
-		sendHoverRequest(uri: string, position: _.Position) {
+		sendHoverRequest(uri: string, position: vscode_languageserver.Position) {
 			return connection.sendRequest(
-				_.HoverRequest.type,
+				vscode_languageserver.HoverRequest.type,
 				{
 					textDocument: { uri },
 					position,
-				} satisfies _.HoverParams
+				} satisfies vscode_languageserver.HoverParams
 			);
 		},
-		sendDocumentFormattingRequest(uri: string, options: _.FormattingOptions) {
+		sendDocumentFormattingRequest(uri: string, options: vscode_languageserver.FormattingOptions) {
 			return connection.sendRequest(
-				_.DocumentFormattingRequest.type,
+				vscode_languageserver.DocumentFormattingRequest.type,
 				{
 					textDocument: { uri },
 					options,
-				} satisfies _.DocumentFormattingParams
+				} satisfies vscode_languageserver.DocumentFormattingParams
 			);
 		},
-		sendDocumentRangeFormattingRequestRequest(uri: string, range: _.Range, options: _.FormattingOptions) {
+		sendDocumentRangeFormattingRequestRequest(uri: string, range: vscode_languageserver.Range, options: vscode_languageserver.FormattingOptions) {
 			return connection.sendRequest(
-				_.DocumentRangeFormattingRequest.type,
+				vscode_languageserver.DocumentRangeFormattingRequest.type,
 				{
 					textDocument: { uri },
 					range,
 					options,
-				} satisfies _.DocumentRangeFormattingParams
+				} satisfies vscode_languageserver.DocumentRangeFormattingParams
 			);
 		},
-		sendRenameRequest(uri: string, position: _.Position, newName: string) {
+		sendRenameRequest(uri: string, position: vscode_languageserver.Position, newName: string) {
 			return connection.sendRequest(
-				_.RenameRequest.type,
+				vscode_languageserver.RenameRequest.type,
 				{
 					textDocument: { uri },
 					position,
 					newName,
-				} satisfies _.RenameParams
+				} satisfies vscode_languageserver.RenameParams
 			);
 		},
-		sendPrepareRenameRequest(uri: string, position: _.Position) {
+		sendPrepareRenameRequest(uri: string, position: vscode_languageserver.Position) {
 			return connection.sendRequest(
-				_.PrepareRenameRequest.type,
+				vscode_languageserver.PrepareRenameRequest.type,
 				{
 					textDocument: { uri },
 					position,
-				} satisfies _.PrepareRenameParams
+				} satisfies vscode_languageserver.PrepareRenameParams
 			);
 		},
 		sendFoldingRangesRequest(uri: string) {
 			return connection.sendRequest(
-				_.FoldingRangeRequest.type,
+				vscode_languageserver.FoldingRangeRequest.type,
 				{
 					textDocument: { uri },
-				} satisfies _.FoldingRangeParams
+				} satisfies vscode_languageserver.FoldingRangeParams
 			);
 		},
 		sendDocumentSymbolRequest(uri: string) {
 			return connection.sendRequest(
-				_.DocumentSymbolRequest.type,
+				vscode_languageserver.DocumentSymbolRequest.type,
 				{
 					textDocument: { uri },
-				} satisfies _.DocumentSymbolParams
+				} satisfies vscode_languageserver.DocumentSymbolParams
 			);
 		},
 		sendDocumentColorRequest(uri: string) {
 			return connection.sendRequest(
-				_.DocumentColorRequest.type,
+				vscode_languageserver.DocumentColorRequest.type,
 				{
 					textDocument: { uri },
-				} satisfies _.DocumentColorParams
+				} satisfies vscode_languageserver.DocumentColorParams
 			);
 		},
-		sendDefinitionRequest(uri: string, position: _.Position) {
+		sendDefinitionRequest(uri: string, position: vscode_languageserver.Position) {
 			return connection.sendRequest(
-				_.DefinitionRequest.type,
-				{
-					textDocument: { uri },
-					position,
-				} satisfies _.DefinitionParams
-			);
-		},
-		sendTypeDefinitionRequest(uri: string, position: _.Position) {
-			return connection.sendRequest(
-				_.TypeDefinitionRequest.type,
+				vscode_languageserver.DefinitionRequest.type,
 				{
 					textDocument: { uri },
 					position,
-				} satisfies _.TypeDefinitionParams
+				} satisfies vscode_languageserver.DefinitionParams
 			);
 		},
-		sendReferencesRequest(uri: string, position: _.Position, context: _.ReferenceContext) {
+		sendTypeDefinitionRequest(uri: string, position: vscode_languageserver.Position) {
 			return connection.sendRequest(
-				_.ReferencesRequest.type,
+				vscode_languageserver.TypeDefinitionRequest.type,
+				{
+					textDocument: { uri },
+					position,
+				} satisfies vscode_languageserver.TypeDefinitionParams
+			);
+		},
+		sendReferencesRequest(uri: string, position: vscode_languageserver.Position, context: vscode_languageserver.ReferenceContext) {
+			return connection.sendRequest(
+				vscode_languageserver.ReferencesRequest.type,
 				{
 					textDocument: { uri },
 					position,
 					context,
-				} satisfies _.ReferenceParams
+				} satisfies vscode_languageserver.ReferenceParams
 			);
 		},
-		sendSignatureHelpRequest(uri: string, position: _.Position) {
+		sendSignatureHelpRequest(uri: string, position: vscode_languageserver.Position) {
 			return connection.sendRequest(
-				_.SignatureHelpRequest.type,
+				vscode_languageserver.SignatureHelpRequest.type,
 				{
 					textDocument: { uri },
 					position,
-				} satisfies _.SignatureHelpParams
+				} satisfies vscode_languageserver.SignatureHelpParams
 			);
 		},
-		sendSelectionRangesRequest(uri: string, positions: _.Position[]) {
+		sendSelectionRangesRequest(uri: string, positions: vscode_languageserver.Position[]) {
 			return connection.sendRequest(
-				_.SelectionRangeRequest.type,
+				vscode_languageserver.SelectionRangeRequest.type,
 				{
 					textDocument: { uri },
 					positions,
-				} satisfies _.SelectionRangeParams
+				} satisfies vscode_languageserver.SelectionRangeParams
 			);
 		},
-		sendCodeActionsRequest(uri: string, range: _.Range, context: _.CodeActionContext) {
+		sendCodeActionsRequest(uri: string, range: vscode_languageserver.Range, context: vscode_languageserver.CodeActionContext) {
 			return connection.sendRequest(
-				_.CodeActionRequest.type,
+				vscode_languageserver.CodeActionRequest.type,
 				{
 					textDocument: { uri },
 					range,
 					context,
-				} satisfies _.CodeActionParams
+				} satisfies vscode_languageserver.CodeActionParams
 			);
 		},
-		sendCodeActionResolveRequest(codeAction: _.CodeAction) {
+		sendCodeActionResolveRequest(codeAction: vscode_languageserver.CodeAction) {
 			return connection.sendRequest(
-				_.CodeActionResolveRequest.type,
-				codeAction satisfies _.CodeAction
+				vscode_languageserver.CodeActionResolveRequest.type,
+				codeAction satisfies vscode_languageserver.CodeAction
 			);
 		},
 		sendExecuteCommandRequest(command: string, args?: any[]) {
 			return connection.sendRequest(
-				_.ExecuteCommandRequest.type,
+				vscode_languageserver.ExecuteCommandRequest.type,
 				{
 					command,
 					arguments: args,
-				} satisfies _.ExecuteCommandParams
+				} satisfies vscode_languageserver.ExecuteCommandParams
 			);
 		},
 		sendSemanticTokensRequest(uri: string) {
 			return connection.sendRequest(
-				_.SemanticTokensRequest.type,
+				vscode_languageserver.SemanticTokensRequest.type,
 				{
 					textDocument: { uri },
-				} satisfies _.SemanticTokensParams
+				} satisfies vscode_languageserver.SemanticTokensParams
 			);
 		},
-		sendSemanticTokensRangeRequest(uri: string, range: _.Range) {
+		sendSemanticTokensRangeRequest(uri: string, range: vscode_languageserver.Range) {
 			return connection.sendRequest(
-				_.SemanticTokensRangeRequest.type,
+				vscode_languageserver.SemanticTokensRangeRequest.type,
 				{
 					textDocument: { uri },
 					range,
-				} satisfies _.SemanticTokensRangeParams
+				} satisfies vscode_languageserver.SemanticTokensRangeParams
 			);
 		},
-		sendColorPresentationRequest(uri: string, color: _.Color, range: _.Range) {
+		sendColorPresentationRequest(uri: string, color: vscode_languageserver.Color, range: vscode_languageserver.Range) {
 			return connection.sendRequest(
-				_.ColorPresentationRequest.type,
+				vscode_languageserver.ColorPresentationRequest.type,
 				{
 					textDocument: { uri },
 					color,
 					range,
-				} satisfies _.ColorPresentationParams
+				} satisfies vscode_languageserver.ColorPresentationParams
 			);
 		},
 		sendDocumentLinkRequest(uri: string) {
 			return connection.sendRequest(
-				_.DocumentLinkRequest.type,
+				vscode_languageserver.DocumentLinkRequest.type,
 				{
 					textDocument: { uri },
-				} satisfies _.DocumentLinkParams
+				} satisfies vscode_languageserver.DocumentLinkParams
 			);
 		},
-		sendDocumentLinkResolveRequest(link: _.DocumentLink) {
+		sendDocumentLinkResolveRequest(link: vscode_languageserver.DocumentLink) {
 			return connection.sendRequest(
-				_.DocumentLinkResolveRequest.type,
-				link satisfies _.DocumentLink
+				vscode_languageserver.DocumentLinkResolveRequest.type,
+				link satisfies vscode_languageserver.DocumentLink
 			);
 		},
 	};

@@ -99,7 +99,7 @@ export interface LanguagePlugin<T = unknown, K extends VirtualCode = VirtualCode
 	/**
 	 * For files that are not opened in the IDE, the language ID will not be synchronized to the language server, so a hook is needed to parse the language ID of files that are known extension but not opened in the IDE.
 	 */
-	getLanguageId(scriptId: T): string | undefined;
+	resolveLanguageId(scriptId: T): string | undefined;
 	/**
 	 * Generate a virtual code.
 	 */

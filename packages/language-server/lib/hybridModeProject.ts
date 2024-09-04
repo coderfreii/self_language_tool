@@ -6,11 +6,11 @@ import type { LanguageServiceEnvironment, ProviderResult } from '@vue/language-s
 import { searchNamedPipeServerForFile, TypeScriptProjectLanguageServiceHost } from '@vue/typescript-plugin/lib/utils';
 import * as ts from 'typescript';
 import { URI } from 'vscode-uri';
-import { createUriMap } from '@volar/language-service/lib/utils/uriMap';
+import { createUriMap, type KeyType } from '@volar/language-service/lib/utils/uriMap';
 import { createLanguageService, type LanguageService } from '@volar/language-service/lib/languageService';
 import { Disposable } from 'vscode-languageserver-protocol';
 
-export type GetLanguagePlugin<T> = (params: {
+export type GetLanguagePlugin<T extends KeyType> = (params: {
 	serviceEnv: LanguageServiceEnvironment,
 	asFileName: (scriptId: T) => string,
 	configFileName?: string,
@@ -26,13 +26,15 @@ export function createHybridModeProjectFacade(
 	sys: ts.System,
 	getLanguagePlugins: GetLanguagePlugin<URI>,
 ): ProjectFacade {
+	initialize(_server);
+
 	let simpleLs: Promise<LanguageService> | undefined;
 	let serviceEnv: LanguageServiceEnvironment | undefined;
 	let server: LanguageServer = _server;
 	const tsconfigProjects = createUriMap<Promise<LanguageService>>(sys.useCaseSensitiveFileNames);
-	initialize(server);
 
-	return {
+	
+	const project: ProjectFacade = {
 		async reolveLanguageServiceByUri(uri) {
 			const fileName = asFileName(uri);
 			const projectInfo = (await searchNamedPipeServerForFile(fileName))?.projectInfo;
@@ -55,7 +57,7 @@ export function createHybridModeProjectFacade(
 							},
 							asFileName,
 						});
-						return createLs(server, serviceEnv, languagePlugins);
+						return createLS(server, serviceEnv, languagePlugins);
 					})());
 				}
 				return await tsconfigProjects.get(tsconfigUri)!;
@@ -64,7 +66,7 @@ export function createHybridModeProjectFacade(
 				simpleLs ??= (async () => {
 					serviceEnv ??= createLanguageServiceEnvironment(server, [...server.workspaceFolders.keys()]);
 					const languagePlugins = await getLanguagePlugins({ serviceEnv, asFileName });
-					return createLs(server, serviceEnv, languagePlugins);
+					return createLS(server, serviceEnv, languagePlugins);
 				})();
 				return await simpleLs;
 			}
@@ -87,6 +89,8 @@ export function createHybridModeProjectFacade(
 		},
 	};
 
+	return project;
+
 	function asFileName(uri: URI) {
 		return uri.fsPath.replace(/\\/g, '/');
 	}
@@ -104,19 +108,18 @@ export function createHybridModeProjectFacade(
 		});
 	}
 
-	function createLs(
+	function createLS(
 		server: LanguageServer,
 		serviceEnv: LanguageServiceEnvironment,
 		languagePlugins: LanguagePlugin<URI>[],
 	) {
-		const language = createLanguage(languagePlugins, createUriMap(), uri => {
-			const documentKey = server.documents.getSyncedDocumentKey(uri);
-			const document = documentKey ? server.documents.documents.get(documentKey) : undefined;
-			if (document) {
-				language.scripts.set(uri, document.getSnapshot(), document.languageId);
-			}
-			else {
-				language.scripts.delete(uri);
+		const language = createLanguage(languagePlugins, false, {
+			getScriptSnapshot(uri) {
+				const document = server.documents.getDocument(uri);
+				return {
+					snapshot: document?.getSnapshot(),
+					languageId: document?.languageId
+				};
 			}
 		});
 		return createLanguageService(

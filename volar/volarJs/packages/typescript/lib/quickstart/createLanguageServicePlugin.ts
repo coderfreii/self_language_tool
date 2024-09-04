@@ -5,7 +5,7 @@ import { decorateLanguageServiceHost, searchExternalFiles } from '../node/decora
 import { createLanguage } from '@volar/language-core';
 import * as vue from '@vue/language-core';
 import type { Language, LanguagePlugin } from '@volar/language-core/lib/types';
-import { FileMap } from '@volar/language-core/lib/utils';
+
 
 export const externalFiles = new WeakMap<ts.server.Project, string[]>();
 export const projectExternalFileExtensions = new WeakMap<ts.server.Project, string[]>();
@@ -25,8 +25,6 @@ export function createLanguageServicePlugin(
 		const { typescript: ts } = modules;
 		const pluginModule: ts.server.PluginModule = {
 			create(info) {
-				console.log("I'm getting set up now! Check");
-
 				if (
 					!decoratedLanguageServices.has(info.languageService)
 					&& !decoratedLanguageServiceHosts.has(info.languageServiceHost)
@@ -45,30 +43,19 @@ export function createLanguageServicePlugin(
 					const getScriptVersion = info.languageServiceHost.getScriptVersion.bind(info.languageServiceHost);
 
 
-					const syncedScriptVersions = new FileMap<string>(ts.sys.useCaseSensitiveFileNames);
-
-
-
 					const language = createLanguage<string>(
 						[
 							...vueLanguagePlugins,
-							{ getLanguageId: resolveFileLanguageId },
+							{ resolveLanguageId: resolveFileLanguageId },
 						],
-						new FileMap(ts.sys.useCaseSensitiveFileNames),
-						fileName => {
-							const version = getScriptVersion(fileName);
-							if (syncedScriptVersions.get(fileName) === version) {
-								return;
-							}
-							syncedScriptVersions.set(fileName, version);
-
-							const snapshot = getScriptSnapshot(fileName);
-							if (snapshot) {
-								language.scripts.set(fileName, snapshot);
-							}
-							else {
-								language.scripts.delete(fileName);
-							}
+						ts.sys.useCaseSensitiveFileNames,
+						{
+							getScriptSnapshot(fileName) {
+								return {
+									snapshot : getScriptSnapshot(fileName)
+								}
+							},
+							getScriptVersion
 						}
 					);
 

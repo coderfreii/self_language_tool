@@ -8,9 +8,8 @@ const windowsPathReg = /\\/g;
 const plugin = createLanguageServicePlugin(
 	(ts, info) => {
 		const vueOptions = getVueCompilerOptions();
-		const vueLanguagePlugin = vue.createVueLanguagePlugin<string>(
+		const vueLanguagePlugin = vue.createLanguagePlugin<string>(
 			ts,
-			id => id,
 			() => info.languageServiceHost.getProjectVersion?.() ?? '',
 			info.project.projectKind === ts.server.ProjectKind.Inferred
 				? () => true

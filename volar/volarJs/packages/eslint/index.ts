@@ -30,7 +30,7 @@ export function createProcessor(
 	},
 	supportsAutofix = true
 ): Linter.Processor {
-	const language = createLanguage<string>(languagePlugins, new FileMap(caseSensitive), () => { });
+	const language = createLanguage<string>(languagePlugins, caseSensitive);
 	const documents = new FileMap<{
 		sourceScript: SourceScript<string>;
 		sourceDocument: TextDocument;
