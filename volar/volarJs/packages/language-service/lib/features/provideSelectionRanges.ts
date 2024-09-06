@@ -12,6 +12,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, positions: vscode.Position[], token = NoneCancellationToken) => {
 
 		return languageFeatureWorker(
+			["provideSelectionRanges"],
 			context,
 			uri,
 			() => positions,

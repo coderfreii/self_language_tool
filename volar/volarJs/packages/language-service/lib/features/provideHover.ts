@@ -14,6 +14,7 @@ export function register(context: LanguageServiceContext) {
 	return async (uri: URI, position: vscode.Position, token = NoneCancellationToken) => {
 
 		let hover = await languageFeatureWorker(
+			["provideHover"],
 			context,
 			uri,
 			() => position,

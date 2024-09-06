@@ -19,6 +19,7 @@ export function register(context: LanguageServiceContext) {
 	return async (uri: URI, token = NoneCancellationToken) => {
 
 		return await documentFeatureWorker(
+			["provideDocumentLinks"],
 			context,
 			uri,
 			map => map.map.mappings.some(mapping => isDocumentLinkEnabled(mapping.data)),

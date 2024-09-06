@@ -14,6 +14,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, position: vscode.Position, token = NoneCancellationToken) => {
 
 		return languageFeatureWorker(
+			["provideDocumentHighlights"],
 			context,
 			uri,
 			() => position,

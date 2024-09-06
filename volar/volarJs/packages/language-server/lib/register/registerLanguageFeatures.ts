@@ -87,9 +87,14 @@ export function registerLanguageFeatures(server: LanguageServer) {
 	registerCapabilitiesListener({
 		capabilities: ["selectionRangeProvider"],
 		run() {
+			server.connection.onRequest(vscode.SelectionRangeRequest.type, async (params, token) => {
+				const uri = URI.parse(params.textDocument.uri);
+				return await worker(uri, token, languageService => {
+					return languageService.getSelectionRanges(uri, params.positions, token);
+				});
+			});
+
 			server.connection.onSelectionRanges(async (params, token) => {
-				console.log("**************************");
-				
 				const uri = URI.parse(params.textDocument.uri);
 				return await worker(uri, token, languageService => {
 					return languageService.getSelectionRanges(uri, params.positions, token);

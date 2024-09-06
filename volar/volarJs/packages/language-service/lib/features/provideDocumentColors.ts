@@ -12,6 +12,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, token = NoneCancellationToken) => {
 
 		return documentFeatureWorker(
+			["provideDocumentColors"],
 			context,
 			uri,
 			map => map.map.mappings.some(mapping => isColorEnabled(mapping.data)),

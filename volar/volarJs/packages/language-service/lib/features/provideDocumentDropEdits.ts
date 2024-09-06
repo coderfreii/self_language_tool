@@ -10,6 +10,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, position: vscode.Position, dataTransfer: Map<string, DataTransferItem>, token = NoneCancellationToken) => {
 
 		return languageFeatureWorker(
+			["provideDocumentDropEdits"],
 			context,
 			uri,
 			() => position,

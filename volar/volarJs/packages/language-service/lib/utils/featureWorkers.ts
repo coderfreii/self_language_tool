@@ -1,4 +1,3 @@
-// import type { VirtualCode } from '@volar/language-core';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { URI } from 'vscode-uri';
 import type { SourceMapWithDocuments } from '../documents';
@@ -6,6 +5,7 @@ import type { LanguageServicePlugin, LanguageServicePluginInstance, LanguageServ
 import type { VirtualCode } from '@volar/language-core/lib/types';
 
 export function documentFeatureWorker<T>(
+	pluginCapabilitiesRequire: (keyof LanguageServicePluginInstance)[],
 	context: LanguageServiceContext,
 	uri: URI,
 	valid: (map: SourceMapWithDocuments) => boolean,
@@ -14,6 +14,7 @@ export function documentFeatureWorker<T>(
 	combineResult?: (results: T[]) => T
 ) {
 	return languageFeatureWorker(
+		pluginCapabilitiesRequire,
 		context,
 		uri,
 		() => void 0,
@@ -29,6 +30,7 @@ export function documentFeatureWorker<T>(
 }
 
 export async function languageFeatureWorker<T, K>(
+	pluginCapabilitiesRequireAny: (keyof LanguageServicePluginInstance)[],
 	context: LanguageServiceContext,
 	uri: URI,
 	getRealDocParams: () => K,
@@ -67,19 +69,31 @@ export async function languageFeatureWorker<T, K>(
 						continue;
 					}
 
-					const rawResult = await safeCall(
-						() => worker(plugin, map.embeddedDocument, mappedArg, map),
-						`Language service plugin "${plugin[0].name}" (${pluginIndex}) failed to provide document feature for ${map.embeddedDocument.uri}.`
-					);
-					if (!rawResult) {
-						continue;
-					}
-					const mappedResult = transformResult(rawResult, map);
-					if (!mappedResult) {
-						continue;
-					}
 
-					results.push(mappedResult);
+					let match = false;
+					pluginCapabilitiesRequireAny.forEach(capabilitie => {
+						if (plugin[1][capabilitie]) {
+							match = true;
+						}
+					});
+
+					if (match) {
+						const rawResult = await safeCall(
+							() => worker(plugin, map.embeddedDocument, mappedArg, map),
+							`Language service plugin "${plugin[0].name}" (${pluginIndex}) failed to provide document feature for ${map.embeddedDocument.uri}.`
+						);
+
+
+						if (!rawResult) {
+							continue;
+						}
+						const mappedResult = transformResult(rawResult, map);
+						if (!mappedResult) {
+							continue;
+						}
+
+						results.push(mappedResult);
+					}
 				}
 			}
 		}

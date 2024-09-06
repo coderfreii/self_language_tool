@@ -1,4 +1,3 @@
-// import { isColorEnabled } from '@volar/language-core';
 import type * as vscode from 'vscode-languageserver-protocol';
 import type { URI } from 'vscode-uri';
 import type { LanguageServiceContext } from '../types';
@@ -12,6 +11,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, color: vscode.Color, range: vscode.Range, token = NoneCancellationToken) => {
 
 		return languageFeatureWorker(
+			["provideColorPresentations"],
 			context,
 			uri,
 			() => range,

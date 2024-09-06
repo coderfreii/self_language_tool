@@ -218,6 +218,7 @@ export function register(context: LanguageServiceContext) {
 			cache: Cache
 		) {
 			const result = await documentFeatureWorker(
+				["provideDiagnostics", "provideSemanticDiagnostics"],
 				context,
 				uri,
 				map => map.map.mappings.some(mapping => isDiagnosticsEnabled(mapping.data)),

@@ -19,6 +19,7 @@ export function register(
 	return (uri: URI, position: vscode.Position, token = NoneCancellationToken) => {
 
 		return languageFeatureWorker(
+			["provideDefinition", "provideTypeDefinition", "provideImplementation"],
 			context,
 			uri,
 			() => position,

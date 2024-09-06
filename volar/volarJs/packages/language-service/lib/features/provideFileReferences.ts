@@ -13,6 +13,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, token = NoneCancellationToken): NullableProviderResult<vscode.Location[]> => {
 
 		return documentFeatureWorker(
+			["provideFileReferences"],
 			context,
 			uri,
 			() => true,

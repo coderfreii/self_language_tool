@@ -28,6 +28,7 @@ export function register(context: LanguageServiceContext) {
 		const transformedCodeActions = new WeakSet<CodeAction>();
 
 		return await languageFeatureWorker(
+			["provideCodeActions", "transformCodeAction"],
 			context,
 			uri,
 			() => ({ range, codeActionContext }),

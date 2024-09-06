@@ -26,6 +26,7 @@ export function register(context: LanguageServiceContext) {
 	return async (uri: URI, token = NoneCancellationToken) => {
 
 		return await documentFeatureWorker(
+			["provideCodeLenses", "provideReferencesCodeLensRanges"],
 			context,
 			uri,
 			map => map.map.mappings.some(mapping => isCodeLensEnabled(mapping.data)),

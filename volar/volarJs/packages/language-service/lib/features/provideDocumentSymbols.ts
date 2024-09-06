@@ -13,6 +13,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, token = NoneCancellationToken): Promise<vscode.DocumentSymbol[] | undefined> => {
 
 		return documentFeatureWorker(
+			["provideDocumentSymbols"],
 			context,
 			uri,
 			map => map.map.mappings.some(mapping => isSymbolsEnabled(mapping.data)),

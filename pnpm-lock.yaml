@@ -37,10 +37,6 @@ importers:
         version: 1.6.0(@types/node@20.14.2)(@vitest/ui@1.6.0)(less@4.2.0)(terser@5.31.1)
 
   extensions/vscode:
-    dependencies:
-      '@vue/typescript-plugin':
-        specifier: 2.0.21
-        version: link:../../packages/typescript-plugin
     devDependencies:
       '@types/semver':
         specifier: ^7.5.3
@@ -57,6 +53,9 @@ importers:
       '@vue/language-server':
         specifier: 2.0.21
         version: link:../../packages/language-server
+      '@vue/typescript-plugin':
+        specifier: 2.0.21
+        version: link:../../packages/typescript-plugin
       esbuild:
         specifier: latest
         version: 0.21.3

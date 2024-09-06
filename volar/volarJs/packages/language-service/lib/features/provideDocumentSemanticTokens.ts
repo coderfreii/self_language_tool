@@ -31,6 +31,7 @@ export function register(context: LanguageServiceContext) {
 		}
 
 		const tokens = await languageFeatureWorker(
+			["provideDocumentSemanticTokens"],
 			context,
 			uri,
 			() => range,

@@ -15,6 +15,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, position: vscode.Position, newName: string, token = NoneCancellationToken) => {
 
 		return languageFeatureWorker(
+			["provideRenameEdits"],
 			context,
 			uri,
 			() => ({ position, newName }),

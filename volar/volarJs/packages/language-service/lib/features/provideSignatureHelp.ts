@@ -19,6 +19,7 @@ export function register(context: LanguageServiceContext) {
 	) => {
 
 		return languageFeatureWorker(
+			["provideSignatureHelp"],
 			context,
 			uri,
 			() => position,

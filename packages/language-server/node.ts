@@ -69,11 +69,6 @@ server.onInitialize(params => {
 	};
 });
 
-server.connection.onSelectionRanges((_a,_b,_c,_d) => {
-	console.log(999);
-	
-		return  	 []
-})
 
 server.connection.onRequest(ParseSFCRequest.type, params => {
 	return parse(params);

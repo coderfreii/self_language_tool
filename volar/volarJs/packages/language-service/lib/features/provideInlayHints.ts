@@ -23,6 +23,7 @@ export function register(context: LanguageServiceContext) {
 		}
 
 		return languageFeatureWorker(
+			["provideInlayHints"],
 			context,
 			uri,
 			() => range,

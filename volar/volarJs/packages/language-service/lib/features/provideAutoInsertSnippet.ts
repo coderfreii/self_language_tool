@@ -10,6 +10,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, selection: vscode.Position, change: { rangeOffset: number; rangeLength: number; text: string; }, token = NoneCancellationToken) => {
 
 		return languageFeatureWorker(
+			["provideAutoInsertSnippet"],
 			context,
 			uri,
 			() => ({ selection, change }),

@@ -13,6 +13,7 @@ export function register(context: LanguageServiceContext) {
 	return (uri: URI, position: vscode.Position, referenceContext: vscode.ReferenceContext, token = NoneCancellationToken) => {
 
 		return languageFeatureWorker(
+			["provideReferences"],
 			context,
 			uri,
 			() => position,
